@@ -139,8 +139,8 @@ class FranchisePriceList(ModelSQL, ModelView):
     def __setup__(cls):
         super(FranchisePriceList, cls).__setup__()
         cls._error_messages.update({
-                'related_price_lists': ('Can not delete line "%s" because it '
-                    'has related price list lines.')
+                'related_price_lists': ('Can not modify line "%s" because it '
+                    'has related price list lines. Please duplicate it.')
                 })
 
     def get_rec_name(self, name):
@@ -295,6 +295,10 @@ class FranchisePriceList(ModelSQL, ModelView):
         for lines, values in zip(actions, actions):
             if values.get('franchise'):
                 to_check.extend(lines)
+                for line in lines:
+                    if line.price_list_lines:
+                        cls.raise_user_error('related_price_lists',
+                            line.rec_name)
         super(FranchisePriceList, cls).write(*args)
         to_create = []
         for line in to_check:
