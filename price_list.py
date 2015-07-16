@@ -313,10 +313,12 @@ class FranchisePriceList(ModelSQL, ModelView):
 
     @classmethod
     def delete(cls, lines):
+        pool = Pool()
+        PriceListLine = pool.get('product.price_list.line')
+        to_delete = []
         for line in lines:
-            if line.price_list_lines:
-                cls.raise_user_error('related_price_lists',
-                    line.rec_name)
+            to_delete.extend(line.price_list_lines)
+        PriceListLine.delete(to_delete)
         super(FranchisePriceList, cls).delete(lines)
 
     @classmethod
