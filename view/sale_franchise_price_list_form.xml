@@ -24,4 +24,5 @@
     </group>
     <label name="public_price"/>
     <field name="public_price"/>
+    <field name="price_list_lines" colspan="4"/>
 </form>

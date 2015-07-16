@@ -129,7 +129,7 @@ class FranchisePriceList(ModelSQL, ModelView):
     public_price = fields.Numeric('Public Price', digits=(16, DIGITS),
         required=True)
     price_list_lines = fields.One2Many('product.price_list.line',
-        'franchise_price_list', 'Price List Line')
+        'franchise_price_list', 'Price List Line', readonly=True)
     franchise_is_set = fields.Function(fields.Boolean('Franchise is set'),
         'get_franchise_is_set')
     quantity_is_set = fields.Function(fields.Boolean('Quantity is set'),
