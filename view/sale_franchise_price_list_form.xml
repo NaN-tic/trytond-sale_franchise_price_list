@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!-- The COPYRIGHT file at the top level of this repository contains the full
+     copyright notices and license terms. -->
+<form string="Franchise Price List">
+    <label name="product"/>
+    <field name="product"/>
+    <label name="franchise"/>
+    <field name="franchise"/>
+    <label name="cost_price"/>
+    <field name="cost_price"/>
+    <label name="quantity"/>
+    <field name="quantity"/>
+    <label name="sale_percent"/>
+    <group id="sale_percent" col="2">
+        <field name="sale_percent" factor="100"/>
+        <label id="percent" string="%" xalign="0.0" xexpand="1"/>
+    </group>
+    <label name="sale_price"/>
+    <field name="sale_price"/>
+    <label name="public_percent"/>
+    <group id="public_percent" col="2">
+        <field name="public_percent" factor="100"/>
+        <label id="percent" string="%" xalign="0.0" xexpand="1"/>
+    </group>
+    <label name="public_price"/>
+    <field name="public_price"/>
+</form>

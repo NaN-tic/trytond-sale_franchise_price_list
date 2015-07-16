@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The COPYRIGHT file at the top level of this repository contains the full
+     copyright notices and license terms. -->
+<tryton>
+    <data>
+
+        <record model="ir.ui.view" id="sale_franchise_price_list_view_form">
+            <field name="model">sale.franchise.price_list</field>
+            <field name="type">form</field>
+            <field name="name">sale_franchise_price_list_form</field>
+        </record>
+        <record model="ir.ui.view" id="sale_franchise_price_list_view_list">
+            <field name="model">sale.franchise.price_list</field>
+            <field name="type">tree</field>
+            <field name="name">sale_franchise_price_list_list</field>
+        </record>
+        <record model="ir.action.act_window" id="act_sale_franchise_price_list">
+            <field name="name">Franchise Price List</field>
+            <field name="res_model">sale.franchise.price_list</field>
+        </record>
+        <record model="ir.action.act_window.view"
+                id="act_sale_franchise_price_list_view1">
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="sale_franchise_price_list_view_list"/>
+            <field name="act_window" ref="act_sale_franchise_price_list"/>
+        </record>
+        <record model="ir.action.act_window.view"
+                id="act_sale_franchise_price_list_view2">
+            <field name="sequence" eval="20"/>
+            <field name="view" ref="sale_franchise_price_list_view_form"/>
+            <field name="act_window" ref="act_sale_franchise_price_list"/>
+        </record>
+        <record model="ir.model.access" id="access_sale_franchise_price_list">
+            <field name="model"
+                search="[('model', '=', 'sale.franchise.price_list')]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access"
+                id="access_sale_franchise_price_list_admin">
+            <field name="model"
+                search="[('model', '=', 'sale.franchise.price_list')]"/>
+            <field name="group" ref="product.group_product_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+        <record model="ir.ui.view" id="product_price_list_view_form">
+            <field name="model">product.price_list</field>
+            <field name="type">form</field>
+            <field name="inherit" ref="product_price_list.price_list_view_form"/>
+            <field name="name">product_price_list_form</field>
+        </record>
+        <record model="ir.ui.view" id="product_price_list_line_view_form">
+            <field name="model">product.price_list.line</field>
+            <field name="type">form</field>
+            <field name="inherit"
+                ref="product_price_list.price_list_line_view_form"/>
+            <field name="name">product_price_list_line_form</field>
+        </record>
+        <record model="ir.ui.view" id="product_price_list_line_view_list">
+            <field name="model">product.price_list.line</field>
+            <field name="type">tree</field>
+            <field name="inherit"
+                ref="product_price_list.price_list_line_view_tree"/>
+            <field name="name">product_price_list_line_list</field>
+        </record>
+        <record model="ir.ui.view"
+                id="product_price_list_line_view_list_sequence">
+            <field name="model">product.price_list.line</field>
+            <field name="type">tree</field>
+            <field name="inherit"
+                ref="product_price_list.price_list_line_view_tree_sequence"/>
+            <field name="name">product_price_list_line_list</field>
+        </record>
+        <!-- Wizard -->
+        <record model="ir.ui.view" id="update_price_list_start_view_form">
+            <field name="model">sale.franchise.price_list.update.start</field>
+            <field name="type">form</field>
+            <field name="name">update_price_list_start_form</field>
+        </record>
+        <record model="ir.ui.view" id="update_price_list_end_view_form">
+            <field name="model">sale.franchise.price_list.update.end</field>
+            <field name="type">form</field>
+            <field name="name">update_price_list_end_form</field>
+        </record>
+        <record model="ir.action.wizard" id="wizard_open_franchise_price_list">
+            <field name="name">Open Franchise Price List</field>
+            <field name="wiz_name">sale.franchise.price_list.open</field>
+        </record>
+
+        <record model="ir.action.wizard"
+                id="wizard_update_franchise_price_list">
+            <field name="name">Update Franchise Price List</field>
+            <field name="wiz_name">sale.franchise.price_list.update</field>
+        </record>
+        <!-- Menus -->
+        <menuitem action="wizard_open_franchise_price_list"
+            id="menu_sale_franchise_price_list"
+            parent="product.menu_main_product" sequence="30"
+            name="Franchise Price List" icon="tryton-list"/>
+        <menuitem action="wizard_update_franchise_price_list"
+            id="menu_sale_franchise_price_list_update"
+            parent="product.menu_main_product" sequence="40"/>
+    </data>
+</tryton>

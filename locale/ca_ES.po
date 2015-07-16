@@ -1,0 +1,192 @@
+#
+msgid ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
+
+msgctxt "error:sale.franchise.price_list:"
+msgid "Can not delete line \"%s\" because it has related price list lines."
+msgstr ""
+"No es pot eliminar la línia \"%s\" perquè té línies de tarifa relacionades."
+
+msgctxt "field:product.price_list,franchise:"
+msgid "Franchise"
+msgstr "Franquicia"
+
+msgctxt "field:product.price_list.line,franchise_price_list:"
+msgid "Francise Price List"
+msgstr "Tarifa de franquicia"
+
+msgctxt "field:product.price_list.line,public_price_formula:"
+msgid "Public Price Formula"
+msgstr "Formula PVP"
+
+msgctxt "field:sale.franchise,price_list:"
+msgid "Price List"
+msgstr "Tarifa"
+
+msgctxt "field:sale.franchise.price_list,cost_price:"
+msgid "Cost Price"
+msgstr "Preu de cost"
+
+msgctxt "field:sale.franchise.price_list,create_date:"
+msgid "Create Date"
+msgstr "Data de creació"
+
+msgctxt "field:sale.franchise.price_list,create_uid:"
+msgid "Create User"
+msgstr "Usuari de creació"
+
+msgctxt "field:sale.franchise.price_list,franchise:"
+msgid "Franchise"
+msgstr "Franquicia"
+
+msgctxt "field:sale.franchise.price_list,franchise_is_set:"
+msgid "Franchise is set"
+msgstr ""
+
+msgctxt "field:sale.franchise.price_list,id:"
+msgid "ID"
+msgstr "Identificador"
+
+msgctxt "field:sale.franchise.price_list,price_list_lines:"
+msgid "Price List Line"
+msgstr "Línia de tarifa"
+
+msgctxt "field:sale.franchise.price_list,product:"
+msgid "Product"
+msgstr "Producte"
+
+msgctxt "field:sale.franchise.price_list,public_percent:"
+msgid "Public %"
+msgstr "% PVP"
+
+msgctxt "field:sale.franchise.price_list,public_price:"
+msgid "Public Price"
+msgstr "PVP"
+
+msgctxt "field:sale.franchise.price_list,quantity:"
+msgid "Quantity"
+msgstr "Quantitat"
+
+msgctxt "field:sale.franchise.price_list,rec_name:"
+msgid "Name"
+msgstr "Nom"
+
+msgctxt "field:sale.franchise.price_list,sale_percent:"
+msgid "Sale %"
+msgstr "% PVD"
+
+msgctxt "field:sale.franchise.price_list,sale_price:"
+msgid "Sale Price"
+msgstr "PVD"
+
+msgctxt "field:sale.franchise.price_list,unit_digits:"
+msgid "Unit Digits"
+msgstr "Decimals d'unitat"
+
+msgctxt "field:sale.franchise.price_list,write_date:"
+msgid "Write Date"
+msgstr "Data modificació"
+
+msgctxt "field:sale.franchise.price_list,write_uid:"
+msgid "Write User"
+msgstr "Usuari modificació"
+
+msgctxt "field:sale.franchise.price_list.update.end,id:"
+msgid "ID"
+msgstr "Identificador"
+
+msgctxt "field:sale.franchise.price_list.update.start,id:"
+msgid "ID"
+msgstr "Identificador"
+
+msgctxt "help:product.price_list.line,public_price_formula:"
+msgid ""
+"Python expression that will be evaluated with:\n"
+"- unit_price: the original unit_price"
+msgstr ""
+"Expressió de Python que s'avaluarà amb:\n"
+"- unit_price: El preu per unitat original"
+
+msgctxt "model:ir.action,name:act_sale_franchise_price_list"
+msgid "Franchise Price List"
+msgstr "Tarifa de franquicia"
+
+msgctxt "model:ir.action,name:wizard_open_franchise_price_list"
+msgid "Open Franchise Price List"
+msgstr "Obrir Tarifa de franquicia"
+
+msgctxt "model:ir.action,name:wizard_update_franchise_price_list"
+msgid "Update Franchise Price List"
+msgstr "Actualitzar tarifa de franquicia"
+
+msgctxt "model:ir.ui.menu,name:None"
+msgid "Franchise Price List"
+msgstr "Tarifa de franquicia"
+
+msgctxt "model:ir.ui.menu,name:None"
+msgid "Franchise Price List"
+msgstr "Tarifa de franquicia"
+
+msgctxt "model:ir.ui.menu,name:None"
+msgid "Franchise Price List"
+msgstr "Tarifa de franquicia"
+
+msgctxt "model:ir.ui.menu,name:None"
+msgid "Update Franchise Price List"
+msgstr "Actualitzar tarifa de franquicia"
+
+msgctxt "model:ir.ui.menu,name:menu_sale_franchise_price_list"
+msgid "Franchise Price List"
+msgstr "Tarifa de franquicia"
+
+msgctxt "model:ir.ui.menu,name:menu_sale_franchise_price_list_update"
+msgid "Update Franchise Price List"
+msgstr "Actualitzar tarifa de franquicia"
+
+msgctxt "model:sale.franchise.price_list,name:"
+msgid "Franchise Price List"
+msgstr "Tarifa de franquicia"
+
+msgctxt "model:sale.franchise.price_list.update.end,name:"
+msgid "Update Franchise Price List End"
+msgstr "Fi actualitzar tarifa de franquicia"
+
+msgctxt "model:sale.franchise.price_list.update.start,name:"
+msgid "Update Franchise Price List Start"
+msgstr "Inici actualitzar tarifa de franquicia"
+
+msgctxt "view:sale.franchise.price_list.update.end:"
+msgid "Process finished correctly"
+msgstr "El procès ha finalizat correctament"
+
+msgctxt "view:sale.franchise.price_list.update.end:"
+msgid "Update Franchise Price List"
+msgstr "Actualitzar tarifa de franquicia"
+
+msgctxt "view:sale.franchise.price_list.update.start:"
+msgid "Update Franchise Price List"
+msgstr "Actualitzar tarifa de franquicia"
+
+msgctxt "view:sale.franchise.price_list.update.start:"
+msgid "Update price lists based on franchise information?"
+msgstr "Actualitzar les tarifes amb la informació de les franquícies?"
+
+msgctxt "view:sale.franchise.price_list:"
+msgid "%"
+msgstr "%"
+
+msgctxt "view:sale.franchise.price_list:"
+msgid "Franchise Price List"
+msgstr "Tarifa de franquicia"
+
+msgctxt "wizard_button:sale.franchise.price_list.update,result,end:"
+msgid "Ok"
+msgstr "D'acord"
+
+msgctxt "wizard_button:sale.franchise.price_list.update,start,end:"
+msgid "Cancel"
+msgstr "Cancel·la"
+
+msgctxt "wizard_button:sale.franchise.price_list.update,start,process:"
+msgid "Update"
+msgstr "Actualitza"

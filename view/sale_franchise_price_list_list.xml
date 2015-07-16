@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!-- The COPYRIGHT file at the top level of this repository contains the full
+     copyright notices and license terms. -->
+<tree string="Franchise Price List" editable="bottom">
+    <field name="product"/>
+    <field name="franchise"/>
+    <field name="cost_price"/>
+    <field name="quantity"/>
+    <field name="sale_percent" factor="100.0"/>
+    <field name="sale_price"/>
+    <field name="public_percent" factor="100.0"/>
+    <field name="public_price"/>
+</tree>
