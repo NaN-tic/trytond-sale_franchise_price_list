@@ -267,14 +267,18 @@ class FranchisePriceList(ModelSQL, ModelView):
 
     def create_price_list_line(self):
         pool = Pool()
+        Template = pool.get('product.template')
         Line = pool.get('product.price_list.line')
         line = Line()
         line.price_list = None
         if self.franchise:
             line.price_list = self.franchise.price_list
         line.product = self.product
-        line.formula = str(self.sale_price)
-        line.public_price_formula = str(self.public_price)
+        digits = Template.list_price.digits[1]
+        line.formula = str(self.sale_price.quantize(
+                Decimal(str(10 ** - digits))))
+        line.public_price_formula = str(self.public_price.quantize(
+                Decimal(str(10 ** - digits))))
         line.quantity = self.quantity
         line.franchise_price_list = self
         return line
