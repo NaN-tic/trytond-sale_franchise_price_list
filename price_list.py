@@ -230,6 +230,11 @@ class FranchisePriceList(ModelSQL, ModelView):
         return bool(self.franchise)
 
     @staticmethod
+    def order_quantity(tables):
+        table, _ = tables[None]
+        return [table.quantity == None, table.quantity]
+
+    @staticmethod
     def order_franchise_is_set(tables):
         table, _ = tables[None]
         return [Case((table.franchise == None, 1), else_=0)]
@@ -240,7 +245,7 @@ class FranchisePriceList(ModelSQL, ModelView):
     @staticmethod
     def order_quantity_is_set(tables):
         table, _ = tables[None]
-        return [Case((table.quantity == None, 1), else_=0)]
+        return [Case((table.quantity == None, -1), else_=table.quantity)]
 
     @classmethod
     def syncronize(cls):
@@ -397,14 +402,14 @@ class UpdateFranchisePriceList(Wizard):
             if values:
                 return ([current_line], values)
             return []
-        # Create/Write on price list lines
-        for franchise_price_list in FranchisePriceList.search([],
-                order=[
-                    ('franchise_is_set', 'ASC'),
-                    ('quantity_is_set', 'ASC'),
-                    ('quantity', 'ASC'),
-                    ]):
+        for seq, franchise_price_list in enumerate(
+                FranchisePriceList.search([],
+                    order=[
+                        ('franchise_is_set', 'ASC'),
+                        ('quantity_is_set', 'DESC'),
+                        ])):
             line = franchise_price_list.create_price_list_line()
+            line.sequence = seq
             if franchise_price_list.price_list_lines:
                 for current_line in franchise_price_list.price_list_lines:
                     to_write.extend(get_values_to_write(line, current_line))
