@@ -116,9 +116,8 @@ class FranchisePriceList(ModelSQL, ModelView):
             depends=['unit_digits'])
     unit_digits = fields.Function(fields.Integer('Unit Digits'),
         'on_change_with_unit_digits')
-    cost_price = fields.Function(fields.Numeric('Cost Price',
-            digits=(16, DIGITS)),
-        'on_change_with_cost_price')
+    cost_price = fields.Numeric('Cost Price', digits=(16, DIGITS),
+        required=True)
     sale_percent = fields.Function(fields.Float('Sale %',
             digits=(4, 4)),
         'on_change_with_sale_percent', setter='set_percent')
@@ -168,9 +167,18 @@ class FranchisePriceList(ModelSQL, ModelView):
         return 2
 
     @fields.depends('product')
-    def on_change_with_cost_price(self, name=None):
+    def on_change_product(self):
+        changes = {}
         if self.product:
-            return self.product.cost_price
+            changes['cost_price'] = self.product.cost_price
+            changes['sale_price'] = self.product.list_price
+            changes['public_price'] = self.product.list_price
+            self.cost_price = changes['cost_price']
+            self.sale_price = changes['sale_price']
+            self.public_price = changes['public_price']
+            changes['sale_percent'] = self.on_change_with_sale_percent()
+            changes['public_percent'] = self.on_change_with_public_percent()
+        return changes
 
     @fields.depends('cost_price', 'sale_price')
     def on_change_with_sale_percent(self, name=None):
@@ -181,8 +189,10 @@ class FranchisePriceList(ModelSQL, ModelView):
 
     @fields.depends('cost_price', 'sale_percent')
     def on_change_with_sale_price(self):
-        if not self.cost_price or not self.sale_percent:
+        if not self.cost_price:
             return _ZERO
+        if not self.sale_percent:
+            return self.cost_price
         digits = self.__class__.sale_price.digits[1]
         return (self.cost_price * Decimal(1 + self.sale_percent).quantize(
                 Decimal(str(10 ** - digits))))
@@ -196,8 +206,10 @@ class FranchisePriceList(ModelSQL, ModelView):
 
     @fields.depends('cost_price', 'public_percent')
     def on_change_with_public_price(self):
-        if not self.cost_price or not self.public_percent:
+        if not self.cost_price:
             return _ZERO
+        if not self.public_percent:
+            return self.cost_price
         digits = self.__class__.public_price.digits[1]
         return (self.cost_price * Decimal(1 + self.public_percent).quantize(
                 Decimal(str(10 ** - digits))))
@@ -246,6 +258,7 @@ class FranchisePriceList(ModelSQL, ModelView):
         for missing_product in set(products) - set(existing):
             to_create.append({
                     'product': missing_product.id,
+                    'cost_price': missing_product.cost_price,
                     'sale_price': missing_product.list_price,
                     'public_price': missing_product.list_price,
                     })
@@ -282,6 +295,7 @@ class FranchisePriceList(ModelSQL, ModelView):
                         ], count=True):
                 to_create.append({
                         'product': line.product.id,
+                        'cost_price': line.product.cost_price,
                         'sale_price': line.product.list_price,
                         'public_price': line.product.list_price,
                         })
@@ -295,6 +309,13 @@ class FranchisePriceList(ModelSQL, ModelView):
                 cls.raise_user_error('related_price_lists',
                     line.rec_name)
         super(FranchisePriceList, cls).delete(lines)
+
+    @classmethod
+    def copy(cls, lines, default=None):
+        if default is None:
+            default = {}
+        default.setdefault('price_list_lines', [])
+        return super(FranchisePriceList, cls).copy(lines, default=default)
 
 
 class OpenFranchisePriceList(Wizard):
@@ -359,6 +380,19 @@ class UpdateFranchisePriceList(Wizard):
         to_write = []
         to_create = []
         price_list_created = set()
+
+        def get_values_to_write(line, current_line):
+            values = {}
+            for field in PriceListLine._fields.keys():
+                if (field in ['id', 'price_list'] or
+                        not hasattr(line, field)):
+                    continue
+                value = getattr(line, field)
+                if value != getattr(current_line, field):
+                    values[field] = value
+            if values:
+                return ([current_line], values)
+            return []
         # Create/Write on price list lines
         for franchise_price_list in FranchisePriceList.search([],
                 order=[
@@ -369,16 +403,7 @@ class UpdateFranchisePriceList(Wizard):
             line = franchise_price_list.create_price_list_line()
             if franchise_price_list.price_list_lines:
                 for current_line in franchise_price_list.price_list_lines:
-                    values = {}
-                    for field in PriceListLine._fields.keys():
-                        if (field in ['id', 'price_list'] or
-                                not hasattr(line, field)):
-                            continue
-                        value = getattr(line, field)
-                        if value != getattr(current_line, field):
-                            values[field] = value
-                    if values:
-                        to_write.extend(([current_line], values))
+                    to_write.extend(get_values_to_write(line, current_line))
             else:
                 if not line.price_list:
                     for price_list in price_lists:
@@ -388,9 +413,19 @@ class UpdateFranchisePriceList(Wizard):
                             continue
                         to_create.append(line._save_values)
                 else:
+                    existing = PriceListLine.search([
+                                ('product', '=', line.product.id),
+                                ('price_list', '=', line.price_list.id),
+                                ('quantity', '=', line.quantity),
+                            ])
                     key = (line.product, line.price_list, line.quantity)
                     price_list_created.add(key)
-                    to_create.append(line._save_values)
+                    if existing:
+                        for current_line in existing:
+                            to_write.extend(get_values_to_write(line,
+                                    current_line))
+                    else:
+                        to_create.append(line._save_values)
         if to_create:
             PriceListLine.create(to_create)
         if to_write:
