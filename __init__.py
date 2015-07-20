@@ -2,6 +2,7 @@
 # copyright notices and license terms.
 from trytond.pool import Pool
 from .price_list import *
+from .sale import *
 
 
 def register():
@@ -12,6 +13,7 @@ def register():
         PriceListLine,
         UpdateFranchisePriceListStart,
         UpdateFranchisePriceListEnd,
+        Sale,
         module='sale_franchise_price_list', type_='model')
     Pool.register(
         OpenFranchisePriceList,
