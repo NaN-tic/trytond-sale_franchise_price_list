@@ -58,6 +58,10 @@ msgctxt "field:sale.franchise.price_list,product:"
 msgid "Product"
 msgstr "Producte"
 
+msgctxt "field:sale.franchise.price_list,product_type:"
+msgid "Sale Type"
+msgstr "Tipus de venda"
+
 msgctxt "field:sale.franchise.price_list,public_percent:"
 msgid "Public %"
 msgstr "% PVP"

@@ -112,6 +112,8 @@ class FranchisePriceList(ModelSQL, ModelView):
 
     franchise = fields.Many2One('sale.franchise', 'Franchise')
     product = fields.Many2One('product.product', 'Product', required=True)
+    product_type = fields.Function(fields.Char('Sale Type'),
+        'on_change_with_product_type', searcher='search_product_type')
     quantity = fields.Float('Quantity', digits=(16, Eval('unit_digits', 2)),
             depends=['unit_digits'])
     unit_digits = fields.Function(fields.Integer('Unit Digits'),
@@ -213,6 +215,17 @@ class FranchisePriceList(ModelSQL, ModelView):
         digits = self.__class__.public_price.digits[1]
         return (self.cost_price * Decimal(1 + self.public_percent).quantize(
                 Decimal(str(10 ** - digits))))
+
+    @fields.depends('product')
+    def on_change_with_product_type(self, name=None):
+        if self.product:
+            return ','.join(x.rec_name for x in self.product.template.types)
+        return ''
+
+    @classmethod
+    def search_product_type(cls, name, clause):
+        return [tuple(('product.template.category.types',))
+            + tuple(clause[1:])]
 
     @classmethod
     def set_percent(cls, records, name, value):

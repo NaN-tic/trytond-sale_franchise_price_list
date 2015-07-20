@@ -3,6 +3,7 @@
      copyright notices and license terms. -->
 <tree string="Franchise Price List" editable="bottom">
     <field name="product"/>
+    <field name="product_type"/>
     <field name="franchise"/>
     <field name="cost_price"/>
     <field name="quantity"/>
