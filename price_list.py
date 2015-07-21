@@ -1,7 +1,12 @@
 # The COPYRIGHT file at the top level of this repository contains the full
 # copyright notices and license terms.
+from copy import deepcopy
+from sql import Null, Literal
+from sql.aggregate import Count
 from sql.conditionals import Case
+from sql.operators import Exists
 from decimal import Decimal
+
 from trytond.config import config
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.pool import Pool, PoolMeta
@@ -14,8 +19,9 @@ from trytond.modules.product_price_list.price_list import decistmt
 DIGITS = config.getint('digits', 'unit_price_digits', 4)
 
 __all__ = ['Franchise', 'PriceList', 'PriceListLine', 'FranchisePriceList',
-    'OpenFranchisePriceList', 'UpdateFranchisePriceListStart',
-    'UpdateFranchisePriceListEnd', 'UpdateFranchisePriceList']
+    'FranchisePriceListFranchise', 'OpenFranchisePriceList',
+    'UpdateFranchisePriceListStart', 'UpdateFranchisePriceListEnd',
+    'UpdateFranchisePriceList']
 __metaclass__ = PoolMeta
 _ZERO = Decimal('0.0')
 
@@ -99,18 +105,31 @@ class PriceListLine:
         pool = Pool()
         FranchisePriceList = pool.get('sale.franchise.price_list')
         price_list = FranchisePriceList()
-        price_list.franchise = self.price_list.franchise
+        price_list.franchises = [self.price_list.franchise]
         price_list.product = self.product
         price_list.sale_price = self.get_unit_price()
         price_list.public_price = self.get_public_price()
         return price_list
 
 
+class FranchisePriceListFranchise(ModelSQL):
+    'Franchise Price List - Franchise'
+    __name__ = 'sale.franchise.price_list-sale.franchise'
+
+    price_list = fields.Many2One('sale.franchise.price_list',
+        'Franchise Price List', required=True, select=True, ondelete='CASCADE')
+    franchise = fields.Many2One('sale.franchise', 'Franchise', required=True,
+        select=True, ondelete='CASCADE')
+
+
 class FranchisePriceList(ModelSQL, ModelView):
     'Franchise Price List'
     __name__ = 'sale.franchise.price_list'
 
-    franchise = fields.Many2One('sale.franchise', 'Franchise')
+    franchise_name = fields.Function(fields.Char('Franchise'),
+        'get_franchise_name')
+    franchises = fields.Many2Many('sale.franchise.price_list-sale.franchise',
+        'price_list', 'franchise', 'Franchises')
     product = fields.Many2One('product.product', 'Product', required=True)
     product_type = fields.Function(fields.Char('Sale Type'),
         'on_change_with_product_type', searcher='search_product_type')
@@ -146,9 +165,8 @@ class FranchisePriceList(ModelSQL, ModelView):
                 })
 
     def get_rec_name(self, name):
-        franchise = self.franchise.rec_name if self.franchise else ''
         qty = self.quantity if self.quantity else ''
-        return '%s %s %s' % (self.product.rec_name, franchise, qty)
+        return '%s %s %s' % (self.product.rec_name, self.franchise_name, qty)
 
     @classmethod
     def search_rec_name(cls, name, clause):
@@ -158,7 +176,7 @@ class FranchisePriceList(ModelSQL, ModelView):
             bool_op = 'OR'
         return [bool_op,
             ('product.rec_name',) + tuple(clause[1:]),
-            ('franchise',) + tuple(clause[1:]),
+            ('franchises',) + tuple(clause[1:]),
             ('quantity',) + tuple(clause[1:]),
             ]
 
@@ -249,8 +267,12 @@ class FranchisePriceList(ModelSQL, ModelView):
 
     @staticmethod
     def order_franchise_is_set(tables):
+        pool = Pool()
+        Relation = pool.get('sale.franchise.price_list-sale.franchise')
         table, _ = tables[None]
-        return [Case((table.franchise == None, 1), else_=0)]
+        relation = Relation.__table__()
+        return [relation.select(Count(relation.franchise),
+                where=(relation.price_list == table.id))]
 
     def get_quantity_is_set(self, name):
         return bool(self.quantity)
@@ -258,7 +280,43 @@ class FranchisePriceList(ModelSQL, ModelView):
     @staticmethod
     def order_quantity_is_set(tables):
         table, _ = tables[None]
-        return [Case((table.quantity == None, -1), else_=table.quantity)]
+        return [Case((table.quantity == Null, -1), else_=table.quantity)]
+
+    def get_franchise_name(self, name):
+        return ','.join(x.name for x in self.franchises)
+
+    @classmethod
+    def domain_franchises(cls, domain, tables):
+        pool = Pool()
+        Franchise = pool.get('sale.franchise')
+        Relation = pool.get('sale.franchise.price_list-sale.franchise')
+        relation = Relation.__table__()
+        table, _ = tables[None]
+        name, operator, value = domain
+        if '.' in name:
+            target_name = name.split('.')[1]
+        else:
+            target_name = 'rec_name'
+        direct_query = Franchise.search([(target_name, operator, value)],
+            query=True)
+        direct = table.id.in_(relation.select(relation.price_list,
+                where=relation.franchise.in_(direct_query)))
+        products = cls.__table__()
+        products_rel = Relation.__table__()
+        indirect_query = products.select(products.id,
+            where=~products.id.in_(products_rel.select(products_rel.price_list,
+                )))
+        indirect = table.id.in_(indirect_query)
+        indirect_query = products.select(products.product,
+            where=products.id.in_(products_rel.select(products_rel.price_list,
+                where=products_rel.franchise.in_(deepcopy(direct_query)))))
+        indirect_rel = Relation.__table__()
+        indirect &= (~Exists(indirect_rel.select(Literal(1), where=(
+                            indirect_rel.franchise.in_(direct_query)
+                            & (indirect_rel.price_list == table.id))))
+                & ~table.product.in_(indirect_query))
+
+        return direct | indirect
 
     @classmethod
     def syncronize(cls):
@@ -270,7 +328,7 @@ class FranchisePriceList(ModelSQL, ModelView):
                 ('template.salable', '=', True),
                 ])
         lines = cls.search([
-                ('franchise', '=', None),
+                ('franchises', '=', None),
                 ])
         existing = set(l.product for l in lines)
         for missing_product in set(products) - set(existing):
@@ -289,8 +347,6 @@ class FranchisePriceList(ModelSQL, ModelView):
         Line = pool.get('product.price_list.line')
         line = Line()
         line.price_list = None
-        if self.franchise:
-            line.price_list = self.franchise.price_list
         line.product = self.product
         digits = Template.list_price.digits[1]
         line.formula = str(self.sale_price.quantize(
@@ -306,7 +362,7 @@ class FranchisePriceList(ModelSQL, ModelView):
         actions = iter(args)
         to_check = []
         for lines, values in zip(actions, actions):
-            if values.get('franchise'):
+            if values.get('franchises'):
                 to_check.extend(lines)
                 for line in lines:
                     if line.price_list_lines:
@@ -317,7 +373,7 @@ class FranchisePriceList(ModelSQL, ModelView):
         for line in to_check:
             if not cls.search([
                         ('product', '=', line.product.id),
-                        ('franchise', '=', None),
+                        ('franchises', '=', None),
                         ], count=True):
                 to_create.append({
                         'product': line.product.id,
@@ -404,7 +460,7 @@ class UpdateFranchisePriceList(Wizard):
         pool = Pool()
         FranchisePriceList = pool.get('sale.franchise.price_list')
         PriceListLine = pool.get('product.price_list.line')
-        price_lists = self.get_price_lists()
+        price_lists = set(self.get_price_lists())
         to_write = []
         to_create = []
         price_list_created = set()
@@ -424,36 +480,41 @@ class UpdateFranchisePriceList(Wizard):
         for seq, franchise_price_list in enumerate(
                 FranchisePriceList.search([],
                     order=[
-                        ('franchise_is_set', 'ASC'),
+                        ('franchise_is_set', 'DESC'),
                         ('quantity_is_set', 'DESC'),
                         ])):
             line = franchise_price_list.create_price_list_line()
             line.sequence = seq
-            if franchise_price_list.price_list_lines:
-                for current_line in franchise_price_list.price_list_lines:
-                    to_write.extend(get_values_to_write(line, current_line))
-            else:
-                if not line.price_list:
-                    for price_list in price_lists:
-                        line.price_list = price_list
-                        key = (line.product, line.price_list, line.quantity)
-                        if key in price_list_created:
-                            continue
-                        to_create.append(line._save_values)
-                else:
+            done = set()
+            for current_line in franchise_price_list.price_list_lines:
+                to_write.extend(get_values_to_write(line, current_line))
+                done.add(current_line.price_list)
+            if franchise_price_list.franchises:
+                for franchise in franchise_price_list.franchises:
+                    line.price_list = franchise.price_list
+                    key = (line.product, line.price_list, line.quantity)
+                    price_list_created.add(key)
+                    if line.price_list in done:
+                        continue
                     existing = PriceListLine.search([
                                 ('product', '=', line.product.id),
                                 ('price_list', '=', line.price_list.id),
                                 ('quantity', '=', line.quantity),
                             ])
-                    key = (line.product, line.price_list, line.quantity)
-                    price_list_created.add(key)
                     if existing:
                         for current_line in existing:
                             to_write.extend(get_values_to_write(line,
                                     current_line))
                     else:
                         to_create.append(line._save_values)
+                    done.add(line.price_list)
+            else:
+                for price_list in price_lists - done:
+                    line.price_list = price_list
+                    key = (line.product, line.price_list, line.quantity)
+                    if key in price_list_created:
+                        continue
+                    to_create.append(line._save_values)
         if to_create:
             PriceListLine.create(to_create)
         if to_write:

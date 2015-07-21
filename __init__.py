@@ -9,6 +9,7 @@ def register():
     Pool.register(
         Franchise,
         FranchisePriceList,
+        FranchisePriceListFranchise,
         PriceList,
         PriceListLine,
         UpdateFranchisePriceListStart,

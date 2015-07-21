@@ -38,13 +38,17 @@ msgctxt "field:sale.franchise.price_list,create_uid:"
 msgid "Create User"
 msgstr "Usuario de creación"
 
-msgctxt "field:sale.franchise.price_list,franchise:"
-msgid "Franchise"
-msgstr "Franquicia"
-
 msgctxt "field:sale.franchise.price_list,franchise_is_set:"
 msgid "Franchise is set"
 msgstr ""
+
+msgctxt "field:sale.franchise.price_list,franchise_name:"
+msgid "Franchise"
+msgstr "Franquicia"
+
+msgctxt "field:sale.franchise.price_list,franchises:"
+msgid "Franchises"
+msgstr "Franquicias"
 
 msgctxt "field:sale.franchise.price_list,id:"
 msgid "ID"
@@ -99,6 +103,38 @@ msgid "Write Date"
 msgstr "Fecha modificación"
 
 msgctxt "field:sale.franchise.price_list,write_uid:"
+msgid "Write User"
+msgstr "Usuario modificación"
+
+msgctxt "field:sale.franchise.price_list-sale.franchise,create_date:"
+msgid "Create Date"
+msgstr "Fecha de creación"
+
+msgctxt "field:sale.franchise.price_list-sale.franchise,create_uid:"
+msgid "Create User"
+msgstr "Usuario de creación"
+
+msgctxt "field:sale.franchise.price_list-sale.franchise,franchise:"
+msgid "Franchise"
+msgstr "Franquicia"
+
+msgctxt "field:sale.franchise.price_list-sale.franchise,id:"
+msgid "ID"
+msgstr "Identificador"
+
+msgctxt "field:sale.franchise.price_list-sale.franchise,price_list:"
+msgid "Franchise Price List"
+msgstr "Tarifa de franquicia"
+
+msgctxt "field:sale.franchise.price_list-sale.franchise,rec_name:"
+msgid "Name"
+msgstr "Nombre"
+
+msgctxt "field:sale.franchise.price_list-sale.franchise,write_date:"
+msgid "Write Date"
+msgstr "Fecha modificación"
+
+msgctxt "field:sale.franchise.price_list-sale.franchise,write_uid:"
 msgid "Write User"
 msgstr "Usuario modificación"
 
@@ -157,6 +193,10 @@ msgstr "Actualitzar tarifa de franquicia"
 msgctxt "model:sale.franchise.price_list,name:"
 msgid "Franchise Price List"
 msgstr "Tarifa de franquicia"
+
+msgctxt "model:sale.franchise.price_list-sale.franchise,name:"
+msgid "Franchise Price List - Franchise"
+msgstr "Tarifa de franquicia - Franquicia"
 
 msgctxt "model:sale.franchise.price_list.update.end,name:"
 msgid "Update Franchise Price List End"

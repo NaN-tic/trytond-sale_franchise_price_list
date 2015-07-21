@@ -4,7 +4,8 @@
 <tree string="Franchise Price List" editable="bottom">
     <field name="product"/>
     <field name="product_type"/>
-    <field name="franchise"/>
+    <field name="franchise_name"/>
+    <field name="franchises"/>
     <field name="cost_price"/>
     <field name="quantity"/>
     <field name="sale_percent" factor="100.0"/>

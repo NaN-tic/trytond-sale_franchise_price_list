@@ -6,8 +6,8 @@
     <field name="product"/>
     <label name="product_type"/>
     <field name="product_type"/>
-    <label name="franchise"/>
-    <field name="franchise"/>
+    <label name="franchise_name"/>
+    <field name="franchise_name"/>
     <label name="cost_price"/>
     <field name="cost_price"/>
     <label name="quantity"/>
@@ -26,5 +26,6 @@
     </group>
     <label name="public_price"/>
     <field name="public_price"/>
+    <field name="franchises" colspan="4"/>
     <field name="price_list_lines" colspan="4"/>
 </form>
