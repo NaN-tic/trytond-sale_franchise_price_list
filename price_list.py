@@ -242,7 +242,7 @@ class FranchisePriceList(ModelSQL, ModelView):
 
     @classmethod
     def search_product_type(cls, name, clause):
-        return [tuple(('product.template.category.types',))
+        return [tuple(('product.template.types',))
             + tuple(clause[1:])]
 
     @classmethod
