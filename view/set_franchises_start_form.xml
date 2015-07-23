@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<!-- The COPYRIGHT file at the top level of this repository contains the full
+     copyright notices and license terms. -->
+<form string="Set Franchises" col="2">
+    <label name="price_list"/>
+    <field name="price_list"/>
+    <field name="franchises" colspan="4"/>
+</form>

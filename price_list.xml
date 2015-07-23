@@ -91,6 +91,15 @@
             <field name="name">Open Franchise Price List</field>
             <field name="wiz_name">sale.franchise.price_list.open</field>
         </record>
+        <record model="ir.ui.view" id="set_franchises_start_view_form">
+            <field name="model">sale.franchise.price_list.set_franchises.start</field>
+            <field name="type">form</field>
+            <field name="name">set_franchises_start_form</field>
+        </record>
+        <record model="ir.action.wizard" id="wizard_set_franchises">
+            <field name="name">Set Price List Franchises</field>
+            <field name="wiz_name">sale.franchise.price_list.set_franchises</field>
+        </record>
 
         <record model="ir.action.wizard"
                 id="wizard_update_franchise_price_list">

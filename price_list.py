@@ -19,9 +19,9 @@ from trytond.modules.product_price_list.price_list import decistmt
 DIGITS = config.getint('digits', 'unit_price_digits', 4)
 
 __all__ = ['Franchise', 'PriceList', 'PriceListLine', 'FranchisePriceList',
-    'FranchisePriceListFranchise', 'OpenFranchisePriceList',
-    'UpdateFranchisePriceListStart', 'UpdateFranchisePriceListEnd',
-    'UpdateFranchisePriceList']
+    'FranchisePriceListFranchise', 'SetFranchisesStart', 'SetFranchises',
+    'OpenFranchisePriceList', 'UpdateFranchisePriceListStart',
+    'UpdateFranchisePriceListEnd', 'UpdateFranchisePriceList']
 __metaclass__ = PoolMeta
 _ZERO = Decimal('0.0')
 
@@ -159,6 +159,9 @@ class FranchisePriceList(ModelSQL, ModelView):
     @classmethod
     def __setup__(cls):
         super(FranchisePriceList, cls).__setup__()
+        cls._buttons.update({
+                'set_franchises': {}
+                })
         cls._error_messages.update({
                 'related_price_lists': ('Can not modify line "%s" because it '
                     'has related price list lines. Please duplicate it.')
@@ -358,6 +361,11 @@ class FranchisePriceList(ModelSQL, ModelView):
         return line
 
     @classmethod
+    @ModelView.button_action('sale_franchise_price_list.wizard_set_franchises')
+    def set_franchises(cls, price_lists):
+        pass
+
+    @classmethod
     def write(cls, *args):
         actions = iter(args)
         to_check = []
@@ -400,6 +408,43 @@ class FranchisePriceList(ModelSQL, ModelView):
             default = {}
         default.setdefault('price_list_lines', [])
         return super(FranchisePriceList, cls).copy(lines, default=default)
+
+
+class SetFranchisesStart(ModelView):
+    'Set Franchises Start'
+    __name__ = 'sale.franchise.price_list.set_franchises.start'
+
+    price_list = fields.Many2One('sale.franchise.price_list', 'Price List',
+        readonly=True, required=True)
+    franchises = fields.Many2Many('sale.franchise', None, None, 'Franchises')
+
+
+class SetFranchises(Wizard):
+    'Set Franchises'
+    __name__ = 'sale.franchise.price_list.set_franchises'
+
+    start = StateView('sale.franchise.price_list.set_franchises.start',
+        'sale_franchise_price_list.set_franchises_start_view_form', [
+            Button('Cancel', 'end', 'tryton-cancel'),
+            Button('Update', 'process', 'tryton-ok', default=True),
+            ])
+    process = StateTransition()
+
+    def default_start(self, fields):
+        pool = Pool()
+        PriceList = pool.get('sale.franchise.price_list')
+        defaults = {}
+        context = Transaction().context
+        if context.get('active_model') == 'sale.franchise.price_list':
+            price_list = PriceList(context.get('active_id'))
+            defaults['price_list'] = price_list.id
+            defaults['franchises'] = [x.id for x in price_list.franchises]
+        return defaults
+
+    def transition_process(self):
+        self.start.price_list.franchises = self.start.franchises
+        self.start.price_list.save()
+        return 'end'
 
 
 class OpenFranchisePriceList(Wizard):

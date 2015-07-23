@@ -138,6 +138,18 @@ msgctxt "field:sale.franchise.price_list-sale.franchise,write_uid:"
 msgid "Write User"
 msgstr "Usuario modificación"
 
+msgctxt "field:sale.franchise.price_list.set_franchises.start,franchises:"
+msgid "Franchises"
+msgstr "Franquicias"
+
+msgctxt "field:sale.franchise.price_list.set_franchises.start,id:"
+msgid "ID"
+msgstr "Identificador"
+
+msgctxt "field:sale.franchise.price_list.set_franchises.start,price_list:"
+msgid "Price List"
+msgstr "Tarifa"
+
 msgctxt "field:sale.franchise.price_list.update.end,id:"
 msgid "ID"
 msgstr "Identificador"
@@ -161,6 +173,10 @@ msgstr "Tarifa de franquicia"
 msgctxt "model:ir.action,name:wizard_open_franchise_price_list"
 msgid "Open Franchise Price List"
 msgstr "Abrir Tarifa de franquicia"
+
+msgctxt "model:ir.action,name:wizard_set_franchises"
+msgid "Set Price List Franchises"
+msgstr "Establecer franquicias de la tarifa"
 
 msgctxt "model:ir.action,name:wizard_update_franchise_price_list"
 msgid "Update Franchise Price List"
@@ -198,6 +214,10 @@ msgctxt "model:sale.franchise.price_list-sale.franchise,name:"
 msgid "Franchise Price List - Franchise"
 msgstr "Tarifa de franquicia - Franquicia"
 
+msgctxt "model:sale.franchise.price_list.set_franchises.start,name:"
+msgid "Set Franchises Start"
+msgstr "Inicio establecer franquicias"
+
 msgctxt "model:sale.franchise.price_list.update.end,name:"
 msgid "Update Franchise Price List End"
 msgstr "Fin actualitzar tarifa de franquicia"
@@ -205,6 +225,10 @@ msgstr "Fin actualitzar tarifa de franquicia"
 msgctxt "model:sale.franchise.price_list.update.start,name:"
 msgid "Update Franchise Price List Start"
 msgstr "Inicio actualitzar tarifa de franquicia"
+
+msgctxt "view:sale.franchise.price_list.set_franchises.start:"
+msgid "Set Franchises"
+msgstr "Establecer franquicias"
 
 msgctxt "view:sale.franchise.price_list.update.end:"
 msgid "Process finished correctly"
@@ -229,6 +253,19 @@ msgstr "%"
 msgctxt "view:sale.franchise.price_list:"
 msgid "Franchise Price List"
 msgstr "Tarifa de franquicia"
+
+msgctxt "view:sale.franchise.price_list:"
+msgid "Set Franchises"
+msgstr "Establecer franquicias"
+
+msgctxt "wizard_button:sale.franchise.price_list.set_franchises,start,end:"
+msgid "Cancel"
+msgstr "Cancel·lar"
+
+msgctxt ""
+"wizard_button:sale.franchise.price_list.set_franchises,start,process:"
+msgid "Update"
+msgstr "Actualizar"
 
 msgctxt "wizard_button:sale.franchise.price_list.update,result,end:"
 msgid "Ok"
