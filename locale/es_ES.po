@@ -182,22 +182,6 @@ msgctxt "model:ir.action,name:wizard_update_franchise_price_list"
 msgid "Update Franchise Price List"
 msgstr "Actualitzar tarifa de franquicia"
 
-msgctxt "model:ir.ui.menu,name:None"
-msgid "Franchise Price List"
-msgstr "Tarifa de franquicia"
-
-msgctxt "model:ir.ui.menu,name:None"
-msgid "Franchise Price List"
-msgstr "Tarifa de franquicia"
-
-msgctxt "model:ir.ui.menu,name:None"
-msgid "Franchise Price List"
-msgstr "Tarifa de franquicia"
-
-msgctxt "model:ir.ui.menu,name:None"
-msgid "Update Franchise Price List"
-msgstr "Actualitzar tarifa de franquicia"
-
 msgctxt "model:ir.ui.menu,name:menu_sale_franchise_price_list"
 msgid "Franchise Price List"
 msgstr "Tarifa de franquicia"
