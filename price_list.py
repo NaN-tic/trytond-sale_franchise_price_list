@@ -18,9 +18,9 @@ from trytond.wizard import Wizard, StateAction, StateTransition, StateView, \
 from trytond.modules.product_price_list.price_list import decistmt
 DIGITS = config.getint('digits', 'unit_price_digits', 4)
 
-__all__ = ['Franchise', 'PriceList', 'PriceListLine', 'FranchisePriceList',
-    'FranchisePriceListFranchise', 'SetFranchisesStart', 'SetFranchises',
-    'OpenFranchisePriceList', 'UpdateFranchisePriceListStart',
+__all__ = ['Franchise', 'PriceList', 'PriceListLine', 'Template',
+    'FranchisePriceList', 'FranchisePriceListFranchise', 'SetFranchisesStart',
+    'SetFranchises', 'OpenFranchisePriceList', 'UpdateFranchisePriceListStart',
     'UpdateFranchisePriceListEnd', 'UpdateFranchisePriceList']
 __metaclass__ = PoolMeta
 _ZERO = Decimal('0.0')
@@ -122,6 +122,27 @@ class FranchisePriceListFranchise(ModelSQL):
         select=True, ondelete='CASCADE')
 
 
+class Template:
+    __name__ = 'product.template'
+    price_list_cost_price = fields.Numeric('Price List Cost Price',
+        digits=(16, DIGITS), required=True)
+
+    @classmethod
+    def create(cls, vlist):
+        for values in vlist:
+            if 'cost_price' in values:
+                values['price_list_cost_price'] = values['cost_price']
+        return super(Template, cls).create(vlist)
+
+    @classmethod
+    def write(cls, *args):
+        actions = iter(args)
+        for _, values in zip(actions, actions):
+            if 'cost_price' in values:
+                values['price_list_cost_price'] = values['cost_price']
+        return super(Template, cls).write(*args)
+
+
 class FranchisePriceList(ModelSQL, ModelView):
     'Franchise Price List'
     __name__ = 'sale.franchise.price_list'
@@ -137,8 +158,9 @@ class FranchisePriceList(ModelSQL, ModelView):
             depends=['unit_digits'])
     unit_digits = fields.Function(fields.Integer('Unit Digits'),
         'on_change_with_unit_digits')
-    cost_price = fields.Numeric('Cost Price', digits=(16, DIGITS),
-        required=True)
+    product_cost_price = fields.Function(fields.Numeric('Cost Price',
+            digits=(16, DIGITS), required=True),
+        'get_product_cost_price', setter='set_product_cost_price')
     sale_percent = fields.Function(fields.Float('Sale %',
             digits=(4, 4)),
         'on_change_with_sale_percent', setter='set_percent')
@@ -193,49 +215,52 @@ class FranchisePriceList(ModelSQL, ModelView):
     def on_change_product(self):
         changes = {}
         if self.product:
-            changes['cost_price'] = self.product.cost_price
+            changes['product_cost_price'] = (self.product.price_list_cost_price
+                or self.product.cost_price)
             changes['sale_price'] = self.product.list_price
             changes['public_price'] = self.product.list_price
-            self.cost_price = changes['cost_price']
+            self.product_cost_price = changes['product_cost_price']
             self.sale_price = changes['sale_price']
             self.public_price = changes['public_price']
             changes['sale_percent'] = self.on_change_with_sale_percent()
             changes['public_percent'] = self.on_change_with_public_percent()
         return changes
 
-    @fields.depends('cost_price', 'sale_price')
+    @fields.depends('product_cost_price', 'sale_price')
     def on_change_with_sale_percent(self, name=None):
-        if not self.cost_price or not self.sale_price:
+        if not self.product_cost_price or not self.sale_price:
             return 0.0
         digits = self.__class__.sale_percent.digits[1]
-        return round(float(self.sale_price / self.cost_price) - 1.0, digits)
+        return round(float(self.sale_price / self.product_cost_price) - 1.0,
+            digits)
 
-    @fields.depends('cost_price', 'sale_percent')
+    @fields.depends('product_cost_price', 'sale_percent')
     def on_change_with_sale_price(self):
-        if not self.cost_price:
+        if not self.product_cost_price:
             return _ZERO
         if not self.sale_percent:
-            return self.cost_price
+            return self.product_cost_price
         digits = self.__class__.sale_price.digits[1]
-        return (self.cost_price * Decimal(1 + self.sale_percent).quantize(
-                Decimal(str(10 ** - digits))))
+        return (self.product_cost_price * Decimal(1 + self.sale_percent
+                ).quantize(Decimal(str(10 ** - digits))))
 
-    @fields.depends('cost_price', 'public_price')
+    @fields.depends('product_cost_price', 'public_price')
     def on_change_with_public_percent(self, name=None):
-        if not self.cost_price or not self.public_price:
+        if not self.product_cost_price or not self.public_price:
             return 0.0
         digits = self.__class__.public_percent.digits[1]
-        return round(float(self.public_price / self.cost_price) - 1.0, digits)
+        return round(float(self.public_price / self.product_cost_price) - 1.0,
+            digits)
 
-    @fields.depends('cost_price', 'public_percent')
+    @fields.depends('product_cost_price', 'public_percent')
     def on_change_with_public_price(self):
-        if not self.cost_price:
+        if not self.product_cost_price:
             return _ZERO
         if not self.public_percent:
-            return self.cost_price
+            return self.product_cost_price
         digits = self.__class__.public_price.digits[1]
-        return (self.cost_price * Decimal(1 + self.public_percent).quantize(
-                Decimal(str(10 ** - digits))))
+        return (self.product_cost_price * Decimal(1 + self.public_percent
+                ).quantize(Decimal(str(10 ** - digits))))
 
     @fields.depends('product')
     def on_change_with_product_type(self, name=None):
@@ -289,6 +314,34 @@ class FranchisePriceList(ModelSQL, ModelView):
         return ','.join(x.name for x in self.franchises)
 
     @classmethod
+    def get_product_cost_price(cls, lines, name):
+        pool = Pool()
+        Product = pool.get('product.product')
+        Template = pool.get('product.template')
+        cursor = Transaction().cursor
+        table = cls.__table__()
+        product = Product.__table__()
+        template = Template.__table__()
+        line_ids = [x.id for x in lines]
+        result = {}.fromkeys(line_ids, None)
+        for sub_ids in grouped_slice(line_ids):
+            cursor.execute(*table.join(product,
+                    condition=(product.id == table.product)).join(template,
+                    condition=(template.id == product.template)).select(
+                    table.id, template.price_list_cost_price,
+                    where=reduce_ids(table.id, sub_ids)))
+            result.update(dict(cursor.fetchall()))
+        return result
+
+    @classmethod
+    def set_product_cost_price(cls, lines, name, value):
+        pool = Pool()
+        Template = pool.get('product.template')
+        Template.write([l.product.template for l in lines], {
+                'price_list_cost_price': value,
+                })
+
+    @classmethod
     def domain_franchises(cls, domain, tables):
         pool = Pool()
         Franchise = pool.get('sale.franchise')
@@ -337,7 +390,6 @@ class FranchisePriceList(ModelSQL, ModelView):
         for missing_product in set(products) - set(existing):
             to_create.append({
                     'product': missing_product.id,
-                    'cost_price': missing_product.cost_price,
                     'sale_price': missing_product.list_price,
                     'public_price': missing_product.list_price,
                     })
@@ -385,7 +437,6 @@ class FranchisePriceList(ModelSQL, ModelView):
                         ], count=True):
                 to_create.append({
                         'product': line.product.id,
-                        'cost_price': line.product.cost_price,
                         'sale_price': line.product.list_price,
                         'public_price': line.product.list_price,
                         })

@@ -6,7 +6,7 @@
     <field name="product_type"/>
     <field name="franchise_name"/>
     <button name="set_franchises" string="Set Franchises"/>
-    <field name="cost_price"/>
+    <field name="product_cost_price"/>
     <field name="quantity"/>
     <field name="sale_percent" factor="100.0"/>
     <field name="sale_price"/>

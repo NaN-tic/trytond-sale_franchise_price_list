@@ -22,13 +22,13 @@ msgctxt "field:product.price_list.line,public_price_formula:"
 msgid "Public Price Formula"
 msgstr "Formula PVP"
 
+msgctxt "field:product.template,price_list_cost_price:"
+msgid "Price List Cost Price"
+msgstr "Precio de coste de tarifa"
+
 msgctxt "field:sale.franchise,price_list:"
 msgid "Price List"
 msgstr "Tarifa"
-
-msgctxt "field:sale.franchise.price_list,cost_price:"
-msgid "Cost Price"
-msgstr "Precio de coste"
 
 msgctxt "field:sale.franchise.price_list,create_date:"
 msgid "Create Date"
@@ -61,6 +61,10 @@ msgstr "Línea de tarifa"
 msgctxt "field:sale.franchise.price_list,product:"
 msgid "Product"
 msgstr "Producto"
+
+msgctxt "field:sale.franchise.price_list,product_cost_price:"
+msgid "Cost Price"
+msgstr "Precio de coste"
 
 msgctxt "field:sale.franchise.price_list,product_type:"
 msgid "Sale Type"
@@ -179,6 +183,22 @@ msgid "Set Price List Franchises"
 msgstr "Establecer franquicias de la tarifa"
 
 msgctxt "model:ir.action,name:wizard_update_franchise_price_list"
+msgid "Update Franchise Price List"
+msgstr "Actualitzar tarifa de franquicia"
+
+msgctxt "model:ir.ui.menu,name:None"
+msgid "Franchise Price List"
+msgstr "Tarifa de franquicia"
+
+msgctxt "model:ir.ui.menu,name:None"
+msgid "Franchise Price List"
+msgstr "Tarifa de franquicia"
+
+msgctxt "model:ir.ui.menu,name:None"
+msgid "Franchise Price List"
+msgstr "Tarifa de franquicia"
+
+msgctxt "model:ir.ui.menu,name:None"
 msgid "Update Franchise Price List"
 msgstr "Actualitzar tarifa de franquicia"
 
