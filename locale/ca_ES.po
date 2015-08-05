@@ -1,14 +1,23 @@
 #
+# Àngel Àlvarez <angel@nan-tic.com>, 2015.
+#
 msgid ""
-msgstr "Content-Type: text/plain; charset=utf-8\n"
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Last-Translator: Àngel Àlvarez <angel@nan-tic.com>\n"
+"Language-Team: català; valencià <>\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"PO-Revision-Date: 2015-08-05 11:42+0200\n"
+"X-Generator: Gtranslator 2.91.6\n"
 
 msgctxt "error:sale.franchise.price_list:"
 msgid ""
 "Can not modify line \"%s\" because it has related price list lines. Please "
 "duplicate it."
 msgstr ""
-"No se pot modificar la línia \"%s\" perquè té línies de tarifa relacionades."
-" Si us plau, dupliqueu-la."
+"No se pot modificar la línia \"%s\" perquè té línies de tarifa relacionades. "
+"Si us plau, dupliqueu-la."
 
 msgctxt "field:product.price_list,franchise:"
 msgid "Franchise"
@@ -40,7 +49,7 @@ msgstr "Usuari de creació"
 
 msgctxt "field:sale.franchise.price_list,franchise_is_set:"
 msgid "Franchise is set"
-msgstr ""
+msgstr "Franquícia establerta"
 
 msgctxt "field:sale.franchise.price_list,franchise_name:"
 msgid "Franchise"
@@ -84,7 +93,7 @@ msgstr "Quantitat"
 
 msgctxt "field:sale.franchise.price_list,quantity_is_set:"
 msgid "Quantity is set"
-msgstr ""
+msgstr "Quantitat establerta"
 
 msgctxt "field:sale.franchise.price_list,rec_name:"
 msgid "Name"
@@ -191,14 +200,6 @@ msgid "Franchise Price List"
 msgstr "Tarifa de franquicia"
 
 msgctxt "model:ir.ui.menu,name:None"
-msgid "Franchise Price List"
-msgstr "Tarifa de franquicia"
-
-msgctxt "model:ir.ui.menu,name:None"
-msgid "Franchise Price List"
-msgstr "Tarifa de franquicia"
-
-msgctxt "model:ir.ui.menu,name:None"
 msgid "Update Franchise Price List"
 msgstr "Actualitzar tarifa de franquicia"
 
@@ -266,8 +267,7 @@ msgctxt "wizard_button:sale.franchise.price_list.set_franchises,start,end:"
 msgid "Cancel"
 msgstr "Cancel·la"
 
-msgctxt ""
-"wizard_button:sale.franchise.price_list.set_franchises,start,process:"
+msgctxt "wizard_button:sale.franchise.price_list.set_franchises,start,process:"
 msgid "Update"
 msgstr "Actualitza"
 
