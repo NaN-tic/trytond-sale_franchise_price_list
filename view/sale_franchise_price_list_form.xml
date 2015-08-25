@@ -9,7 +9,7 @@
     <label name="franchise_name"/>
     <field name="franchise_name"/>
     <label name="product_cost_price"/>
-    <field name="prodcut_cost_price"/>
+    <field name="product_cost_price"/>
     <label name="quantity"/>
     <field name="quantity"/>
     <label name="sale_percent"/>
