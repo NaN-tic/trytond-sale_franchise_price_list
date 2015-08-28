@@ -202,7 +202,6 @@ class FranchisePriceList(ModelSQL, ModelView):
         return [bool_op,
             ('product.rec_name',) + tuple(clause[1:]),
             ('franchises',) + tuple(clause[1:]),
-            ('quantity',) + tuple(clause[1:]),
             ]
 
     @fields.depends('product')
