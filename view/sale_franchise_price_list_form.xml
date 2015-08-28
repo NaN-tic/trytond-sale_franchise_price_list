@@ -24,6 +24,8 @@
         <field name="public_percent" factor="100"/>
         <label id="percent" string="%" xalign="0.0" xexpand="1"/>
     </group>
+    <label name="sale_price_with_vat"/>
+    <field name="sale_price_with_vat"/>
     <label name="public_price"/>
     <field name="public_price"/>
     <field name="franchises" colspan="4"/>

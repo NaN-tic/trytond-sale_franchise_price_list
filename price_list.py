@@ -166,9 +166,12 @@ class FranchisePriceList(ModelSQL, ModelView):
         'on_change_with_sale_percent', setter='set_percent')
     sale_price = fields.Numeric('Sale Price', digits=(16, DIGITS),
         required=True)
+    sale_price_with_vat = fields.Function(fields.Numeric(
+            'Sale Price with VAT', digits=(16, DIGITS)),
+        'on_change_with_sale_price_with_vat')
     public_percent = fields.Function(fields.Float('Public %',
             digits=(4, 4)),
-        'on_change_with_public_percent', setter='set_percent')
+        'on_change_with_public_percent')
     public_price = fields.Numeric('Public Price', digits=(16, DIGITS),
         required=True)
     price_list_lines = fields.One2Many('product.price_list.line',
@@ -223,13 +226,15 @@ class FranchisePriceList(ModelSQL, ModelView):
             self.public_price = changes['public_price']
             changes['sale_percent'] = self.on_change_with_sale_percent()
             changes['public_percent'] = self.on_change_with_public_percent()
+            changes['sale_price_with_vat'] = (
+                self.on_change_with_sale_price_with_vat())
         return changes
 
     @fields.depends('product_cost_price', 'sale_price')
     def on_change_with_sale_percent(self, name=None):
         if not self.product_cost_price or not self.sale_price:
             return 0.0
-        digits = self.__class__.sale_percent.digits[1]
+        digits = self.__class__.sale_percent.digits[1] - 2
         return round(float(self.sale_price / self.product_cost_price) - 1.0,
             digits)
 
@@ -243,6 +248,20 @@ class FranchisePriceList(ModelSQL, ModelView):
         return (self.product_cost_price * Decimal(1 + self.sale_percent
                 ).quantize(Decimal(str(10 ** - digits))))
 
+    @fields.depends('product', 'sale_price', methods=['sale_price'])
+    def on_change_with_sale_price_with_vat(self, name=None):
+        pool = Pool()
+        Tax = pool.get('account.tax')
+        if not self.product or not self.sale_price:
+            return _ZERO
+        res = Tax.compute(self.product.template.customer_taxes_used,
+            self.sale_price, 1.0)
+        price = self.on_change_with_sale_price()
+        for row in res:
+            price += row['amount']
+        digits = self.__class__.sale_price_with_vat.digits[1]
+        return price.quantize(Decimal(str(10 ** - digits)))
+
     @fields.depends('product_cost_price', 'public_price')
     def on_change_with_public_percent(self, name=None):
         if not self.product_cost_price or not self.public_price:
@@ -250,16 +269,6 @@ class FranchisePriceList(ModelSQL, ModelView):
         digits = self.__class__.public_percent.digits[1]
         return round(float(self.public_price / self.product_cost_price) - 1.0,
             digits)
-
-    @fields.depends('product_cost_price', 'public_percent')
-    def on_change_with_public_price(self):
-        if not self.product_cost_price:
-            return _ZERO
-        if not self.public_percent:
-            return self.product_cost_price
-        digits = self.__class__.public_price.digits[1]
-        return (self.product_cost_price * Decimal(1 + self.public_percent
-                ).quantize(Decimal(str(10 ** - digits))))
 
     @fields.depends('product')
     def on_change_with_product_type(self, name=None):

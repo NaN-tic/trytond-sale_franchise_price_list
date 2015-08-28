@@ -1,23 +1,14 @@
 #
-# Àngel Àlvarez <angel@nan-tic.com>, 2015.
-#
 msgid ""
-msgstr ""
-"Content-Type: text/plain; charset=UTF-8\n"
-"Last-Translator: Àngel Àlvarez <angel@nan-tic.com>\n"
-"Language-Team: català; valencià <>\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"PO-Revision-Date: 2015-08-05 11:42+0200\n"
-"X-Generator: Gtranslator 2.91.6\n"
+msgstr "Content-Type: text/plain; charset=utf-8\n"
 
 msgctxt "error:sale.franchise.price_list:"
 msgid ""
 "Can not modify line \"%s\" because it has related price list lines. Please "
 "duplicate it."
 msgstr ""
-"No se pot modificar la línia \"%s\" perquè té línies de tarifa relacionades. "
-"Si us plau, dupliqueu-la."
+"No se pot modificar la línia \"%s\" perquè té línies de tarifa relacionades."
+" Si us plau, dupliqueu-la."
 
 msgctxt "field:product.price_list,franchise:"
 msgid "Franchise"
@@ -107,6 +98,10 @@ msgctxt "field:sale.franchise.price_list,sale_price:"
 msgid "Sale Price"
 msgstr "PVD"
 
+msgctxt "field:sale.franchise.price_list,sale_price_with_vat:"
+msgid "Sale Price with VAT"
+msgstr "PVD amb Impost"
+
 msgctxt "field:sale.franchise.price_list,unit_digits:"
 msgid "Unit Digits"
 msgstr "Decimals d'unitat"
@@ -195,12 +190,8 @@ msgctxt "model:ir.action,name:wizard_update_franchise_price_list"
 msgid "Update Franchise Price List"
 msgstr "Actualitzar tarifa de franquicia"
 
-msgctxt "model:ir.ui.menu,name:None"
+msgctxt "model:ir.ui.menu,name:"
 msgid "Franchise Price List"
-msgstr "Tarifa de franquicia"
-
-msgctxt "model:ir.ui.menu,name:None"
-msgid "Update Franchise Price List"
 msgstr "Actualitzar tarifa de franquicia"
 
 msgctxt "model:ir.ui.menu,name:menu_sale_franchise_price_list"
@@ -267,7 +258,8 @@ msgctxt "wizard_button:sale.franchise.price_list.set_franchises,start,end:"
 msgid "Cancel"
 msgstr "Cancel·la"
 
-msgctxt "wizard_button:sale.franchise.price_list.set_franchises,start,process:"
+msgctxt ""
+"wizard_button:sale.franchise.price_list.set_franchises,start,process:"
 msgid "Update"
 msgstr "Actualitza"
 
