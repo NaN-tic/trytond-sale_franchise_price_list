@@ -235,8 +235,8 @@ class FranchisePriceList(ModelSQL, ModelView):
         if not self.product_cost_price or not self.sale_price:
             return 0.0
         digits = self.__class__.sale_percent.digits[1] - 2
-        return round(float(self.sale_price / self.product_cost_price) - 1.0,
-            digits)
+        return round(float(self.sale_price - self.product_cost_price /
+                self.sale_price), digits)
 
     @fields.depends('product_cost_price', 'sale_percent')
     def on_change_with_sale_price(self):
@@ -245,8 +245,8 @@ class FranchisePriceList(ModelSQL, ModelView):
         if not self.sale_percent:
             return self.product_cost_price
         digits = self.__class__.sale_price.digits[1]
-        return (self.product_cost_price * Decimal(1 + self.sale_percent
-                ).quantize(Decimal(str(10 ** - digits))))
+        return (self.product_cost_price * Decimal(self.sale_percent)).quantize(
+            Decimal(str(10 ** - digits)))
 
     @fields.depends('product', 'sale_price', methods=['sale_price'])
     def on_change_with_sale_price_with_vat(self, name=None):
@@ -267,8 +267,8 @@ class FranchisePriceList(ModelSQL, ModelView):
         if not self.product_cost_price or not self.public_price:
             return 0.0
         digits = self.__class__.public_percent.digits[1]
-        return round(float(self.public_price / self.product_cost_price) - 1.0,
-            digits)
+        return round(float(self.public_price - self.product_cost_price /
+                self.public_price), digits)
 
     @fields.depends('product')
     def on_change_with_product_type(self, name=None):
