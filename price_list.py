@@ -230,6 +230,19 @@ class FranchisePriceList(ModelSQL, ModelView):
                 self.on_change_with_sale_price_with_vat())
         return changes
 
+    @fields.depends('sale_price_percent', 'sale_price_with_vat',
+        'public_percent', 'public_price', 'product')
+    def on_change_sale_percent(self):
+        changes = {}
+        sale_price_with_vat = self.on_change_with_sale_price_with_vat()
+        if sale_price_with_vat != self.sale_price_with_vat:
+            changes['sale_price_with_vat'] = sale_price_with_vat
+            self.sale_price_with_vat = sale_price_with_vat
+        public_percent = self.on_change_with_public_percent()
+        if public_percent != self.public_percent:
+            changes['public_percent'] = public_percent
+        return changes
+
     @fields.depends('product_cost_price', 'sale_price')
     def on_change_with_sale_percent(self, name=None):
         if not self.product_cost_price or not self.sale_price:
@@ -245,10 +258,11 @@ class FranchisePriceList(ModelSQL, ModelView):
         if not self.sale_percent:
             return self.product_cost_price
         digits = self.__class__.sale_price.digits[1]
-        return (self.product_cost_price * Decimal(self.sale_percent)).quantize(
-            Decimal(str(10 ** - digits)))
+        return (self.product_cost_price / Decimal(1 - self.sale_percent)
+            ).quantize(Decimal(str(10 ** - digits)))
 
-    @fields.depends('product', 'sale_price')
+    @fields.depends('product', 'sale_price', 'sale_price_percent',
+        methods=['sale_price'])
     def on_change_with_sale_price_with_vat(self, name=None):
         pool = Pool()
         Tax = pool.get('account.tax')
@@ -256,18 +270,20 @@ class FranchisePriceList(ModelSQL, ModelView):
             return _ZERO
         res = Tax.compute(self.product.template.customer_taxes_used,
             self.sale_price, 1.0)
-        price = self.sale_price
+        price = self.on_change_with_sale_price()
         for row in res:
             price += row['amount']
         digits = self.__class__.sale_price_with_vat.digits[1]
         return price.quantize(Decimal(str(10 ** - digits)))
 
-    @fields.depends('product_cost_price', 'public_price')
+    @fields.depends('sale_price_with_vat', 'public_price',
+        methods=['sale_price_with_vat'])
     def on_change_with_public_percent(self, name=None):
-        if not self.product_cost_price or not self.public_price:
+        if not self.sale_price_with_vat or not self.public_price:
             return 0.0
+        sale_price_with_vat = self.on_change_with_sale_price_with_vat()
         digits = self.__class__.public_percent.digits[1]
-        return round(float((self.public_price - self.product_cost_price) /
+        return round(float((self.public_price - sale_price_with_vat) /
                 self.public_price), digits)
 
     @fields.depends('product')
