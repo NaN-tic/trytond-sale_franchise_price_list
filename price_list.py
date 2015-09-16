@@ -234,8 +234,8 @@ class FranchisePriceList(ModelSQL, ModelView):
     def on_change_with_sale_percent(self, name=None):
         if not self.product_cost_price or not self.sale_price:
             return 0.0
-        digits = self.__class__.sale_percent.digits[1] - 2
-        return round(float(self.sale_price - self.product_cost_price /
+        digits = self.__class__.sale_percent.digits[1]
+        return round(float((self.sale_price - self.product_cost_price) /
                 self.sale_price), digits)
 
     @fields.depends('product_cost_price', 'sale_percent')
@@ -248,7 +248,7 @@ class FranchisePriceList(ModelSQL, ModelView):
         return (self.product_cost_price * Decimal(self.sale_percent)).quantize(
             Decimal(str(10 ** - digits)))
 
-    @fields.depends('product', 'sale_price', methods=['sale_price'])
+    @fields.depends('product', 'sale_price')
     def on_change_with_sale_price_with_vat(self, name=None):
         pool = Pool()
         Tax = pool.get('account.tax')
@@ -256,7 +256,7 @@ class FranchisePriceList(ModelSQL, ModelView):
             return _ZERO
         res = Tax.compute(self.product.template.customer_taxes_used,
             self.sale_price, 1.0)
-        price = self.on_change_with_sale_price()
+        price = self.sale_price
         for row in res:
             price += row['amount']
         digits = self.__class__.sale_price_with_vat.digits[1]
@@ -267,7 +267,7 @@ class FranchisePriceList(ModelSQL, ModelView):
         if not self.product_cost_price or not self.public_price:
             return 0.0
         digits = self.__class__.public_percent.digits[1]
-        return round(float(self.public_price - self.product_cost_price /
+        return round(float((self.public_price - self.product_cost_price) /
                 self.public_price), digits)
 
     @fields.depends('product')
@@ -283,15 +283,7 @@ class FranchisePriceList(ModelSQL, ModelView):
 
     @classmethod
     def set_percent(cls, records, name, value):
-        to_write = []
-        field_name = '%s_price' % (name.split('_')[0])
-        on_change = 'on_change_with_%s' % (field_name)
-        for record in records:
-            val = getattr(record, on_change)()
-            if val != getattr(record, field_name):
-                to_write.extend(([record], {field_name: val}))
-        if to_write:
-            cls.write(*to_write)
+        return
 
     def get_franchise_is_set(self, name):
         return bool(self.franchise)
