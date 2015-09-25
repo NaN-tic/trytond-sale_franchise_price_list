@@ -404,10 +404,13 @@ class FranchisePriceList(ModelSQL, ModelView):
                 ])
         existing = set(l.product for l in lines)
         for missing_product in set(products) - set(existing):
+            digits = cls.sale_price.digits[1]
+            list_price = (missing_product.list_price or Decimal(0)).quantize(
+                Decimal(str(10 ** - digits)))
             to_create.append({
                     'product': missing_product.id,
-                    'sale_price': missing_product.list_price or Decimal(0),
-                    'public_price': missing_product.list_price or Decimal(0),
+                    'sale_price': list_price,
+                    'public_price': list_price,
                     })
         if to_create:
             cls.create(to_create)
