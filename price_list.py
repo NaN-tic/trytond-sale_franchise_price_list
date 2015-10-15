@@ -82,6 +82,26 @@ class PriceList:
                     return line.get_public_price()
         return unit_price
 
+    def compute_all(self, party, product, unit_price, quantity, uom,
+            pattern=None):
+        Uom = Pool().get('product.uom')
+
+        if pattern is None:
+            pattern = {}
+
+        pattern = pattern.copy()
+        pattern['product'] = product and product.id or None
+        pattern['quantity'] = Uom.compute_qty(uom, quantity,
+            product.default_uom, round=False) if product else quantity
+
+        for line in self.lines:
+            if line.match(pattern):
+                with Transaction().set_context(
+                        self._get_context_price_list_line(party, product,
+                            unit_price, quantity, uom)):
+                    return (line.get_unit_price(), line.get_public_price())
+        return (unit_price, unit_price)
+
 
 class PriceListLine:
     __name__ = 'product.price_list.line'
@@ -592,6 +612,7 @@ class UpdateFranchisePriceList(Wizard):
             if values:
                 return ([current_line], values)
             return []
+
         for seq, franchise_price_list in enumerate(
                 FranchisePriceList.search([],
                     order=[
