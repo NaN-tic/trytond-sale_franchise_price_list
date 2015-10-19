@@ -375,6 +375,7 @@ class FranchisePriceList(ModelSQL, ModelView):
         Template = pool.get('product.template')
         Template.write([l.product.template for l in lines], {
                 'price_list_cost_price': value,
+                'cost_price': value,
                 })
 
     @classmethod
