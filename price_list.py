@@ -94,13 +94,16 @@ class PriceList:
         pattern['quantity'] = Uom.compute_qty(uom, quantity,
             product.default_uom, round=False) if product else quantity
 
+        cost_price = product.cost_price
+
         for line in self.lines:
             if line.match(pattern):
                 with Transaction().set_context(
                         self._get_context_price_list_line(party, product,
                             unit_price, quantity, uom)):
-                    return (line.get_unit_price(), line.get_public_price())
-        return (unit_price, unit_price)
+                    return (cost_price,
+                        line.get_unit_price(), line.get_public_price())
+        return (cost_price, unit_price, unit_price)
 
 
 class PriceListLine:
