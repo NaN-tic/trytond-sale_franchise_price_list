@@ -1,22 +1,22 @@
 # The COPYRIGHT file at the top level of this repository contains the full
 # copyright notices and license terms.
 from copy import deepcopy
+from simpleeval import simple_eval
 from sql import Null, Literal
 from sql.aggregate import Count
 from sql.conditionals import Case
 from sql.operators import Exists
 from decimal import Decimal
 
-from trytond.config import config
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval
-from trytond.tools import safe_eval, grouped_slice, reduce_ids
+from trytond.tools import grouped_slice, reduce_ids
 from trytond.transaction import Transaction
 from trytond.wizard import Wizard, StateAction, StateTransition, StateView, \
     Button
+from trytond.modules.product import price_digits
 from trytond.modules.product_price_list.price_list import decistmt
-DIGITS = config.getint('digits', 'unit_price_digits', 4)
 
 __all__ = ['Franchise', 'PriceList', 'PriceListLine', 'Template',
     'FranchisePriceList', 'FranchisePriceListFranchise', 'SetFranchisesStart',
@@ -122,7 +122,7 @@ class PriceListLine:
         context['Decimal'] = Decimal
         formula = (self.public_price_formula if self.public_price_formula else
             self.formula)
-        return safe_eval(decistmt(formula), context)
+        return simple_eval(decistmt(formula), **context)
 
     def get_franchise_price_list(self):
         pool = Pool()
@@ -148,7 +148,7 @@ class FranchisePriceListFranchise(ModelSQL):
 class Template:
     __name__ = 'product.template'
     price_list_cost_price = fields.Numeric('Price List Cost Price',
-        digits=(16, DIGITS), required=True)
+        digits=price_digits, required=True)
 
     @classmethod
     def create(cls, vlist):
@@ -182,20 +182,20 @@ class FranchisePriceList(ModelSQL, ModelView):
     unit_digits = fields.Function(fields.Integer('Unit Digits'),
         'on_change_with_unit_digits')
     product_cost_price = fields.Function(fields.Numeric('Cost Price',
-            digits=(16, DIGITS), required=True),
+            digits=price_digits, required=True),
         'get_product_cost_price', setter='set_product_cost_price')
     sale_percent = fields.Function(fields.Float('Sale %',
             digits=(4, 4)),
         'on_change_with_sale_percent', setter='set_percent')
-    sale_price = fields.Numeric('Sale Price', digits=(16, DIGITS),
+    sale_price = fields.Numeric('Sale Price', digits=price_digits,
         required=True)
     sale_price_with_vat = fields.Function(fields.Numeric(
-            'Sale Price with VAT', digits=(16, DIGITS)),
+            'Sale Price with VAT', digits=price_digits),
         'on_change_with_sale_price_with_vat')
     public_percent = fields.Function(fields.Float('Public %',
             digits=(4, 4)),
         'on_change_with_public_percent')
-    public_price = fields.Numeric('Public Price', digits=(16, DIGITS),
+    public_price = fields.Numeric('Public Price', digits=price_digits,
         required=True)
     price_list_lines = fields.One2Many('product.price_list.line',
         'franchise_price_list', 'Price List Line', readonly=True)
