@@ -2,8 +2,7 @@
 <!-- The COPYRIGHT file at the top level of this repository contains the full
      copyright notices and license terms. -->
 <data>
-<!-- TODO fill "xpath expr" -->                
-    <xpath expr="" position="before">
+    <xpath expr="/form/field[@name='supervisor']" position="after">
         <label name="price_list"/>
         <field name="price_list"/>
     </xpath>
