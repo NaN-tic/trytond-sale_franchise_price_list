@@ -3,17 +3,27 @@
      copyright notices and license terms. -->
 <tryton>
     <data>
+        <!-- sale.franchise -->
+        <record model="ir.ui.view" id="franchise_view_form">
+            <field name="model">sale.franchise</field>
+            <field name="type">form</field>
+            <field name="inherit" ref="sale_franchise.franchise_view_form"/>
+            <field name="name">sale_franchise_form</field>
+        </record>
 
+        <!-- sale.franchise.price_list -->
         <record model="ir.ui.view" id="sale_franchise_price_list_view_form">
             <field name="model">sale.franchise.price_list</field>
             <field name="type">form</field>
             <field name="name">sale_franchise_price_list_form</field>
         </record>
+
         <record model="ir.ui.view" id="sale_franchise_price_list_view_list">
             <field name="model">sale.franchise.price_list</field>
             <field name="type">tree</field>
             <field name="name">sale_franchise_price_list_list</field>
         </record>
+
         <record model="ir.action.act_window" id="act_sale_franchise_price_list">
             <field name="name">Franchise Price List</field>
             <field name="res_model">sale.franchise.price_list</field>
@@ -30,6 +40,7 @@
             <field name="view" ref="sale_franchise_price_list_view_form"/>
             <field name="act_window" ref="act_sale_franchise_price_list"/>
         </record>
+
         <record model="ir.model.access" id="access_sale_franchise_price_list">
             <field name="model"
                 search="[('model', '=', 'sale.franchise.price_list')]"/>
@@ -38,6 +49,7 @@
             <field name="perm_create" eval="False"/>
             <field name="perm_delete" eval="False"/>
         </record>
+
         <record model="ir.model.access"
                 id="access_sale_franchise_price_list_admin">
             <field name="model"
@@ -48,12 +60,16 @@
             <field name="perm_create" eval="True"/>
             <field name="perm_delete" eval="True"/>
         </record>
+
+        <!-- product.price_list -->
         <record model="ir.ui.view" id="product_price_list_view_form">
             <field name="model">product.price_list</field>
             <field name="type">form</field>
             <field name="inherit" ref="product_price_list.price_list_view_form"/>
             <field name="name">product_price_list_form</field>
         </record>
+
+        <!-- product.price_list.line -->
         <record model="ir.ui.view" id="product_price_list_line_view_form">
             <field name="model">product.price_list.line</field>
             <field name="type">form</field>
@@ -61,6 +77,7 @@
                 ref="product_price_list.price_list_line_view_form"/>
             <field name="name">product_price_list_line_form</field>
         </record>
+
         <record model="ir.ui.view" id="product_price_list_line_view_list">
             <field name="model">product.price_list.line</field>
             <field name="type">tree</field>
@@ -68,6 +85,7 @@
                 ref="product_price_list.price_list_line_view_tree"/>
             <field name="name">product_price_list_line_list</field>
         </record>
+
         <record model="ir.ui.view"
                 id="product_price_list_line_view_list_sequence">
             <field name="model">product.price_list.line</field>
@@ -76,26 +94,32 @@
                 ref="product_price_list.price_list_line_view_tree_sequence"/>
             <field name="name">product_price_list_line_list</field>
         </record>
-        <!-- Wizard -->
+
+        <!-- sale.franchise.price_list.open Wizard -->
         <record model="ir.ui.view" id="update_price_list_start_view_form">
             <field name="model">sale.franchise.price_list.update.start</field>
             <field name="type">form</field>
             <field name="name">update_price_list_start_form</field>
         </record>
+
         <record model="ir.ui.view" id="update_price_list_end_view_form">
             <field name="model">sale.franchise.price_list.update.end</field>
             <field name="type">form</field>
             <field name="name">update_price_list_end_form</field>
         </record>
+
         <record model="ir.action.wizard" id="wizard_open_franchise_price_list">
             <field name="name">Open Franchise Price List</field>
             <field name="wiz_name">sale.franchise.price_list.open</field>
         </record>
+
+        <!-- sale.franchise.price_list.set_franchises Wizard -->
         <record model="ir.ui.view" id="set_franchises_start_view_form">
             <field name="model">sale.franchise.price_list.set_franchises.start</field>
             <field name="type">form</field>
             <field name="name">set_franchises_start_form</field>
         </record>
+
         <record model="ir.action.wizard" id="wizard_set_franchises">
             <field name="name">Set Price List Franchises</field>
             <field name="wiz_name">sale.franchise.price_list.set_franchises</field>
@@ -106,6 +130,7 @@
             <field name="name">Update Franchise Price List</field>
             <field name="wiz_name">sale.franchise.price_list.update</field>
         </record>
+
         <!-- Menus -->
         <menuitem action="wizard_open_franchise_price_list"
             id="menu_sale_franchise_price_list"
