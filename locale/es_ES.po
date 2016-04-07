@@ -146,6 +146,10 @@ msgctxt "field:sale.franchise.price_list-sale.franchise,write_uid:"
 msgid "Write User"
 msgstr "Usuario modificación"
 
+msgctxt "field:sale.franchise.price_list.set_franchises.start,category:"
+msgid "Category"
+msgstr "Categoría"
+
 msgctxt "field:sale.franchise.price_list.set_franchises.start,franchises:"
 msgid "Franchises"
 msgstr "Franquicias"
