@@ -510,6 +510,7 @@ class SetFranchisesStart(ModelView):
 
     price_list = fields.Many2One('sale.franchise.price_list', 'Price List',
         readonly=True, required=True)
+    category = fields.Many2One('sale.franchise.category', 'Category')
     franchises = fields.Many2Many('sale.franchise', None, None, 'Franchises')
 
 
@@ -536,7 +537,16 @@ class SetFranchises(Wizard):
         return defaults
 
     def transition_process(self):
-        self.start.price_list.franchises = self.start.franchises
+        pool = Pool()
+        Franchise = pool.get('sale.franchise')
+        franchises = self.start.franchises
+        if self.start.category:
+            for franchise in Franchise.search([
+                        ('categories', 'in', [self.start.category.id]),
+                        ]):
+                if franchise not in franchises:
+                    franchises.append(franchise)
+        self.start.price_list.franchises = franchises
         self.start.price_list.save()
         return 'end'
 
