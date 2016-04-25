@@ -1,3 +1,6 @@
+* Converted product_cost_price to persistent field in franchise price list and
+  update product's cost and list price when prices are changed in franchise
+  price list without franchises.
 * Add price_list field into franchise form
 
 Version 3.4.0 - 2015-11-11
