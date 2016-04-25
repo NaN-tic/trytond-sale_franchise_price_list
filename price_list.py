@@ -8,6 +8,8 @@ from sql.conditionals import Case
 from sql.operators import Exists
 from decimal import Decimal
 
+from trytond import backend
+from trytond.config import config
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval
@@ -18,7 +20,7 @@ from trytond.wizard import Wizard, StateAction, StateTransition, StateView, \
 from trytond.modules.product import price_digits
 from trytond.modules.product_price_list.price_list import decistmt
 
-__all__ = ['Franchise', 'PriceList', 'PriceListLine', 'Template',
+__all__ = ['Franchise', 'PriceList', 'PriceListLine',
     'FranchisePriceList', 'FranchisePriceListFranchise', 'SetFranchisesStart',
     'SetFranchises', 'OpenFranchisePriceList', 'UpdateFranchisePriceListStart',
     'UpdateFranchisePriceListEnd', 'UpdateFranchisePriceList']
@@ -181,9 +183,8 @@ class FranchisePriceList(ModelSQL, ModelView):
             depends=['unit_digits'])
     unit_digits = fields.Function(fields.Integer('Unit Digits'),
         'on_change_with_unit_digits')
-    product_cost_price = fields.Function(fields.Numeric('Cost Price',
-            digits=price_digits, required=True),
-        'get_product_cost_price', setter='set_product_cost_price')
+    product_cost_price = fields.Numeric('Cost Price', digits=(16, DIGITS),
+        required=True)
     sale_percent = fields.Function(fields.Float('Sale %',
             digits=(4, 4)),
         'on_change_with_sale_percent', setter='set_percent')
@@ -215,6 +216,38 @@ class FranchisePriceList(ModelSQL, ModelView):
                     'has related price list lines. Please duplicate it.')
                 })
 
+    @classmethod
+    def __register__(cls, module_name):
+        pool = Pool()
+        Product = pool.get('product.product')
+        Template = pool.get('product.template')
+        TableHandler = backend.get('TableHandler')
+
+        cursor = Transaction().cursor
+        table = cls.__table__()
+        product = Product.__table__()
+        template = Template.__table__()
+
+        handler = TableHandler(cursor, cls, module_name)
+        template_handler = TableHandler(cursor, Template, module_name)
+        exists_product_cost_price = handler.column_exist('product_cost_price')
+        exists_price_list_cost_price = template_handler.column_exist(
+            'price_list_cost_price')
+
+        super(FranchisePriceList, cls).__register__(module_name)
+
+        # Migrate from 3.4.0: product_cost_price from functional to normal
+        if exists_price_list_cost_price and not exists_product_cost_price:
+            handler = TableHandler(cursor, cls, module_name)
+            template_handler = TableHandler(cursor, Template, module_name)
+            cursor.execute(*table.update(
+                    columns=[table.product_cost_price],
+                    values=[template.price_list_cost_price],
+                    from_=[product.join(template,
+                            condition=(template.id == product.template))],
+                    where=(product.id == table.product)))
+            template_handler.drop_column('price_list_cost_price')
+
     def get_rec_name(self, name):
         qty = self.quantity if self.quantity else ''
         return '%s %s %s' % (self.product.rec_name, self.franchise_name, qty)
@@ -240,8 +273,7 @@ class FranchisePriceList(ModelSQL, ModelView):
     def on_change_product(self):
         changes = {}
         if self.product:
-            changes['product_cost_price'] = (self.product.price_list_cost_price
-                or self.product.cost_price)
+            changes['product_cost_price'] = self.product.cost_price
             changes['sale_price'] = self.product.list_price
             changes['public_price'] = self.product.list_price
             self.product_cost_price = changes['product_cost_price']
@@ -353,35 +385,6 @@ class FranchisePriceList(ModelSQL, ModelView):
         return ','.join(x.name for x in self.franchises)
 
     @classmethod
-    def get_product_cost_price(cls, lines, name):
-        pool = Pool()
-        Product = pool.get('product.product')
-        Template = pool.get('product.template')
-        cursor = Transaction().cursor
-        table = cls.__table__()
-        product = Product.__table__()
-        template = Template.__table__()
-        line_ids = [x.id for x in lines]
-        result = {}.fromkeys(line_ids, None)
-        for sub_ids in grouped_slice(line_ids):
-            cursor.execute(*table.join(product,
-                    condition=(product.id == table.product)).join(template,
-                    condition=(template.id == product.template)).select(
-                    table.id, template.price_list_cost_price,
-                    where=reduce_ids(table.id, sub_ids)))
-            result.update(dict(cursor.fetchall()))
-        return result
-
-    @classmethod
-    def set_product_cost_price(cls, lines, name, value):
-        pool = Pool()
-        Template = pool.get('product.template')
-        Template.write([l.product.template for l in lines], {
-                'price_list_cost_price': value,
-                'cost_price': value,
-                })
-
-    @classmethod
     def domain_franchises(cls, domain, tables):
         pool = Pool()
         Franchise = pool.get('sale.franchise')
@@ -428,11 +431,15 @@ class FranchisePriceList(ModelSQL, ModelView):
                 ])
         existing = set(l.product for l in lines)
         for missing_product in set(products) - set(existing):
-            digits = cls.sale_price.digits[1]
+            cost_price_digits = cls.product_cost_price.digits[1]
+            cost_price = (missing_product.cost_price or Decimal(0)).quantize(
+                Decimal(str(10 ** - cost_price_digits)))
+            list_price_digits = cls.sale_price.digits[1]
             list_price = (missing_product.list_price or Decimal(0)).quantize(
-                Decimal(str(10 ** - digits)))
+                Decimal(str(10 ** - list_price_digits)))
             to_create.append({
                     'product': missing_product.id,
+                    'product_cost_price': cost_price,
                     'sale_price': list_price,
                     'public_price': list_price,
                     })
@@ -462,27 +469,44 @@ class FranchisePriceList(ModelSQL, ModelView):
 
     @classmethod
     def write(cls, *args):
+        pool = Pool()
+        Template = pool.get('product.template')
+
         actions = iter(args)
         to_check = []
         for lines, values in zip(actions, actions):
-            if values.get('franchises'):
+            if (values.get('franchises')
+                    or values.get('product_cost_price')
+                    or values.get('sale_price')):
                 to_check.extend(lines)
-                for line in lines:
-                    if line.price_list_lines:
-                        cls.raise_user_error('related_price_lists',
-                            line.rec_name)
+                if values.get('franchises'):
+                    for line in lines:
+                        if line.price_list_lines:
+                            cls.raise_user_error('related_price_lists',
+                                line.rec_name)
         super(FranchisePriceList, cls).write(*args)
+
         to_create = []
-        for line in to_check:
+        template_to_write = []
+        for line in cls.browse([x.id for x in to_check]):
+            if not line.franchises:
+                template_to_write.extend(([line.product.template], {
+                            'cost_price': line.product_cost_price,
+                            'list_price': line.sale_price,
+                            }))
+                continue
             if not cls.search([
                         ('product', '=', line.product.id),
                         ('franchises', '=', None),
                         ], count=True):
                 to_create.append({
                         'product': line.product.id,
+                        'product_cost_price': line.product.cost_price,
                         'sale_price': line.product.list_price,
                         'public_price': line.product.list_price,
                         })
+        if template_to_write:
+            Template.write(*template_to_write)
         if to_create:
             cls.create(to_create)
 
