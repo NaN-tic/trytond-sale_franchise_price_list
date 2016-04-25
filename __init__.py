@@ -7,7 +7,6 @@ from .sale import *
 
 def register():
     Pool.register(
-        Template,
         Franchise,
         FranchisePriceList,
         FranchisePriceListFranchise,
