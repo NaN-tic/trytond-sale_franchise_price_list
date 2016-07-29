@@ -150,10 +150,10 @@ class FranchisePriceList(ModelSQL, ModelView):
     'Franchise Price List'
     __name__ = 'sale.franchise.price_list'
 
-    franchise_name = fields.Function(fields.Char('Franchise'),
-        'get_franchise_name')
     franchises = fields.Many2Many('sale.franchise.price_list-sale.franchise',
         'price_list', 'franchise', 'Franchises')
+    franchise_name = fields.Function(fields.Char('Franchises'),
+        'get_franchise_name')
     product = fields.Many2One('product.product', 'Product', required=True)
     product_type = fields.Function(fields.Char('Sale Type'),
         'on_change_with_product_type', searcher='search_product_type')
@@ -240,6 +240,9 @@ class FranchisePriceList(ModelSQL, ModelView):
             ('product.rec_name',) + tuple(clause[1:]),
             ('franchises',) + tuple(clause[1:]),
             ]
+
+    def get_franchise_name(self, name):
+        return ','.join(x.name for x in self.franchises)
 
     @fields.depends('product')
     def on_change_with_unit_digits(self, name=None):
@@ -358,42 +361,6 @@ class FranchisePriceList(ModelSQL, ModelView):
     def order_quantity_is_set(tables):
         table, _ = tables[None]
         return [Case((table.quantity == Null, -1), else_=table.quantity)]
-
-    def get_franchise_name(self, name):
-        return ','.join(x.name for x in self.franchises)
-
-    @classmethod
-    def domain_franchises(cls, domain, tables):
-        pool = Pool()
-        Franchise = pool.get('sale.franchise')
-        Relation = pool.get('sale.franchise.price_list-sale.franchise')
-        relation = Relation.__table__()
-        table, _ = tables[None]
-        name, operator, value = domain
-        if '.' in name:
-            target_name = name.split('.')[1]
-        else:
-            target_name = 'rec_name'
-        direct_query = Franchise.search([(target_name, operator, value)],
-            query=True)
-        direct = table.id.in_(relation.select(relation.price_list,
-                where=relation.franchise.in_(direct_query)))
-        products = cls.__table__()
-        products_rel = Relation.__table__()
-        indirect_query = products.select(products.id,
-            where=~products.id.in_(products_rel.select(products_rel.price_list,
-                )))
-        indirect = table.id.in_(indirect_query)
-        indirect_query = products.select(products.product,
-            where=products.id.in_(products_rel.select(products_rel.price_list,
-                where=products_rel.franchise.in_(deepcopy(direct_query)))))
-        indirect_rel = Relation.__table__()
-        indirect &= (~Exists(indirect_rel.select(Literal(1), where=(
-                            indirect_rel.franchise.in_(direct_query)
-                            & (indirect_rel.price_list == table.id))))
-                & ~table.product.in_(indirect_query))
-
-        return direct | indirect
 
     @classmethod
     def syncronize(cls):
