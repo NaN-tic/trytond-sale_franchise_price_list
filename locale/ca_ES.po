@@ -22,10 +22,6 @@ msgctxt "field:product.price_list.line,public_price_formula:"
 msgid "Public Price Formula"
 msgstr "Formula PVP"
 
-msgctxt "field:product.template,price_list_cost_price:"
-msgid "Price List Cost Price"
-msgstr "Preu de cost tarifa"
-
 msgctxt "field:sale.franchise,price_list:"
 msgid "Price List"
 msgstr "Tarifa"
@@ -43,8 +39,8 @@ msgid "Franchise is set"
 msgstr "Franquícia establerta"
 
 msgctxt "field:sale.franchise.price_list,franchise_name:"
-msgid "Franchise"
-msgstr "Franquicia"
+msgid "Franchises"
+msgstr "Franquícies"
 
 msgctxt "field:sale.franchise.price_list,franchises:"
 msgid "Franchises"

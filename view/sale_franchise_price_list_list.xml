@@ -13,4 +13,5 @@
     <field name="sale_price_with_vat"/>
     <field name="public_percent" factor="100.0"/>
     <field name="public_price"/>
+    <field name="franchises" tree_invisible="1"/>
 </tree>
