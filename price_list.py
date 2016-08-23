@@ -272,32 +272,24 @@ class FranchisePriceList(ModelSQL, ModelView):
 
     @fields.depends('product')
     def on_change_product(self):
-        changes = {}
         if self.product:
-            changes['product_cost_price'] = self.product.cost_price
-            changes['sale_price'] = self.product.list_price
-            changes['public_price'] = self.product.list_price
-            self.product_cost_price = changes['product_cost_price']
-            self.sale_price = changes['sale_price']
-            self.public_price = changes['public_price']
-            changes['sale_percent'] = self.on_change_with_sale_percent()
-            changes['public_percent'] = self.on_change_with_public_percent()
-            changes['sale_price_with_vat'] = (
+            self.product_cost_price = self.product.cost_price
+            self.sale_price = self.product.list_price
+            self.public_price = self.product.list_price
+            self.sale_percent = self.on_change_with_sale_percent()
+            self.public_percent = self.on_change_with_public_percent()
+            self.sale_price_with_vat = (
                 self.on_change_with_sale_price_with_vat())
-        return changes
 
     @fields.depends('sale_price_percent', 'sale_price_with_vat',
         'public_percent', 'public_price', 'product')
     def on_change_sale_percent(self):
-        changes = {}
         sale_price_with_vat = self.on_change_with_sale_price_with_vat()
         if sale_price_with_vat != self.sale_price_with_vat:
-            changes['sale_price_with_vat'] = sale_price_with_vat
             self.sale_price_with_vat = sale_price_with_vat
         public_percent = self.on_change_with_public_percent()
         if public_percent != self.public_percent:
-            changes['public_percent'] = public_percent
-        return changes
+            self.public_percent = public_percent
 
     @fields.depends('product_cost_price', 'sale_price')
     def on_change_with_sale_percent(self, name=None):

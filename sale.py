@@ -12,8 +12,6 @@ class Sale:
 
     @fields.depends('franchise')
     def on_change_franchise(self):
-        changes = super(Sale, self).on_change_franchise()
+        super(Sale, self).on_change_franchise()
         if self.franchise and self.franchise.price_list:
-            changes['price_list'] = self.franchise.price_list.id
-            changes['price_list.rec_name'] = self.franchise.price_list.rec_name
-        return changes
+            self.price_list = self.franchise.price_list
