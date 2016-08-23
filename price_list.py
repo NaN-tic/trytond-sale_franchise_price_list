@@ -1,11 +1,9 @@
 # The COPYRIGHT file at the top level of this repository contains the full
 # copyright notices and license terms.
-from copy import deepcopy
 from simpleeval import simple_eval
-from sql import Null, Literal
+from sql import Null
 from sql.aggregate import Count
 from sql.conditionals import Case
-from sql.operators import Exists
 from decimal import Decimal
 
 from trytond import backend
