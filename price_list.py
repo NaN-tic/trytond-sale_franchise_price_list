@@ -16,7 +16,7 @@ from trytond.transaction import Transaction
 from trytond.wizard import Wizard, StateAction, StateTransition, StateView, \
     Button
 from trytond.modules.product_price_list.price_list import decistmt
-DIGITS = config.getint('digits', 'unit_price_digits', 4)
+DIGITS = config.getint('digits', 'unit_price_digits', default=4)
 
 __all__ = ['Franchise', 'PriceList', 'PriceListLine',
     'FranchisePriceList', 'FranchisePriceListFranchise', 'SetFranchisesStart',
