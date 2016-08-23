@@ -48,7 +48,7 @@ class Franchise:
         pool = Pool()
         PriceList = pool.get('product.price_list')
         table = PriceList.__table__()
-        cursor = Transaction().cursor
+        cursor = Transaction().connection.cursor()
         franchise_ids = [x.id for x in franchises]
         for sub_ids in grouped_slice(franchise_ids):
             result = dict.fromkeys(franchise_ids, None)
@@ -222,12 +222,12 @@ class FranchisePriceList(ModelSQL, ModelView):
         Template = pool.get('product.template')
         TableHandler = backend.get('TableHandler')
 
-        cursor = Transaction().cursor
+        cursor = Transaction().connection.cursor()
         table = cls.__table__()
         product = Product.__table__()
         template = Template.__table__()
 
-        handler = TableHandler(cursor, cls, module_name)
+        handler = TableHandler(cls, module_name)
         template_handler = TableHandler(cursor, Template, module_name)
         exists_product_cost_price = handler.column_exist('product_cost_price')
         exists_price_list_cost_price = template_handler.column_exist(
@@ -237,7 +237,7 @@ class FranchisePriceList(ModelSQL, ModelView):
 
         # Migrate from 3.4.0: product_cost_price from functional to normal
         if exists_price_list_cost_price and not exists_product_cost_price:
-            handler = TableHandler(cursor, cls, module_name)
+            handler = TableHandler(cls, module_name)
             template_handler = TableHandler(cursor, Template, module_name)
             cursor.execute(*table.update(
                     columns=[table.product_cost_price],
