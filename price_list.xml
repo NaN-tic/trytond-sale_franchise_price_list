@@ -6,7 +6,7 @@
         <!-- sale.franchise -->
         <record model="ir.ui.view" id="franchise_view_form">
             <field name="model">sale.franchise</field>
-            <field name="type">form</field>
+            <field name="type" eval="None"/>
             <field name="inherit" ref="sale_franchise.franchise_view_form"/>
             <field name="name">sale_franchise_form</field>
         </record>
@@ -64,7 +64,7 @@
         <!-- product.price_list -->
         <record model="ir.ui.view" id="product_price_list_view_form">
             <field name="model">product.price_list</field>
-            <field name="type">form</field>
+            <field name="type" eval="None"/>
             <field name="inherit" ref="product_price_list.price_list_view_form"/>
             <field name="name">product_price_list_form</field>
         </record>
@@ -72,7 +72,7 @@
         <!-- product.price_list.line -->
         <record model="ir.ui.view" id="product_price_list_line_view_form">
             <field name="model">product.price_list.line</field>
-            <field name="type">form</field>
+            <field name="type" eval="None"/>
             <field name="inherit"
                 ref="product_price_list.price_list_line_view_form"/>
             <field name="name">product_price_list_line_form</field>
@@ -80,7 +80,7 @@
 
         <record model="ir.ui.view" id="product_price_list_line_view_list">
             <field name="model">product.price_list.line</field>
-            <field name="type">tree</field>
+            <field name="type" eval="None"/>
             <field name="inherit"
                 ref="product_price_list.price_list_line_view_tree"/>
             <field name="name">product_price_list_line_list</field>
@@ -89,7 +89,7 @@
         <record model="ir.ui.view"
                 id="product_price_list_line_view_list_sequence">
             <field name="model">product.price_list.line</field>
-            <field name="type">tree</field>
+            <field name="type" eval="None"/>
             <field name="inherit"
                 ref="product_price_list.price_list_line_view_tree_sequence"/>
             <field name="name">product_price_list_line_list</field>
