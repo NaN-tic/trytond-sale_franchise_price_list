@@ -1,6 +1,7 @@
 # The COPYRIGHT file at the top level of this repository contains the full
 # copyright notices and license terms.
 from copy import deepcopy
+from simpleeval import simple_eval
 from sql import Null, Literal
 from sql.aggregate import Count
 from sql.conditionals import Case
@@ -12,7 +13,7 @@ from trytond.config import config
 from trytond.model import ModelView, ModelSQL, fields
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval
-from trytond.tools import safe_eval, grouped_slice, reduce_ids
+from trytond.tools import grouped_slice, reduce_ids
 from trytond.transaction import Transaction
 from trytond.wizard import Wizard, StateAction, StateTransition, StateView, \
     Button
@@ -123,7 +124,7 @@ class PriceListLine:
         context['Decimal'] = Decimal
         formula = (self.public_price_formula if self.public_price_formula else
             self.formula)
-        return safe_eval(decistmt(formula), context)
+        return simple_eval(decistmt(formula), **context)
 
     def get_franchise_price_list(self):
         pool = Pool()
