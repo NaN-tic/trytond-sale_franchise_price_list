@@ -227,7 +227,7 @@ class FranchisePriceList(ModelSQL, ModelView):
         template = Template.__table__()
 
         handler = TableHandler(cls, module_name)
-        template_handler = TableHandler(cursor, Template, module_name)
+        template_handler = TableHandler(Template, module_name)
         exists_product_cost_price = handler.column_exist('product_cost_price')
         exists_price_list_cost_price = template_handler.column_exist(
             'price_list_cost_price')
