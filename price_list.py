@@ -237,7 +237,7 @@ class FranchisePriceList(ModelSQL, ModelView):
         # Migrate from 3.4.0: product_cost_price from functional to normal
         if exists_price_list_cost_price and not exists_product_cost_price:
             handler = TableHandler(cls, module_name)
-            template_handler = TableHandler(cursor, Template, module_name)
+            template_handler = TableHandler(Template, module_name)
             cursor.execute(*table.update(
                     columns=[table.product_cost_price],
                     values=[template.price_list_cost_price],
