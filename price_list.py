@@ -98,6 +98,8 @@ class PriceList:
 
         cost_price = product.cost_price
 
+        # Optimization for the scenario that have price list lines by product
+        # (the use case of the unic user of this module)
         if product:
             lines = PriceListLine.search([
                     ('price_list', '=', self.id),
