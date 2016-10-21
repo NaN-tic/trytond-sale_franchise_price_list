@@ -84,7 +84,9 @@ class PriceList:
 
     def compute_all(self, party, product, unit_price, quantity, uom,
             pattern=None):
-        Uom = Pool().get('product.uom')
+        pool = Pool()
+        PriceListLine = pool.get('product.price_list.line')
+        Uom = pool.get('product.uom')
 
         if pattern is None:
             pattern = {}
@@ -96,7 +98,21 @@ class PriceList:
 
         cost_price = product.cost_price
 
-        for line in self.lines:
+        if product:
+            lines = PriceListLine.search([
+                    ('price_list', '=', self.id),
+                    ['OR',
+                        ('product', '=', product.id),
+                        ('product', '=', None)],
+                    ],
+                order=PriceListLine._order)
+        else:
+            lines = PriceListLine.search([
+                    ('price_list', '=', self.id),
+                    ('product', '=', None),
+                    ],
+                order=PriceListLine._order)
+        for line in lines:
             if line.match(pattern):
                 with Transaction().set_context(
                         self._get_context_price_list_line(party, product,
