@@ -131,6 +131,19 @@
             <field name="wiz_name">sale.franchise.price_list.update</field>
         </record>
 
+
+        <record model="ir.model.button" id="set_franchises_button">
+            <field name="name">set_franchises</field>
+            <field name="string">Set Franchises</field>
+            <field name="model" search="[('model', '=', 'sale.franchise.price_list')]"/>
+        </record>
+        
+        <record model="ir.model.button-res.group"
+            id="set_franchises_button_group">
+            <field name="button" ref="set_franchises_button"/>
+            <field name="group" ref="product.group_product_admin"/>
+        </record>
+
         <!-- Menus -->
         <menuitem action="wizard_open_franchise_price_list"
             id="menu_sale_franchise_price_list"

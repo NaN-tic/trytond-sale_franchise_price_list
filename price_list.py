@@ -22,12 +22,12 @@ __all__ = ['Franchise', 'PriceList', 'PriceListLine',
     'FranchisePriceList', 'FranchisePriceListFranchise', 'SetFranchisesStart',
     'SetFranchises', 'OpenFranchisePriceList', 'UpdateFranchisePriceListStart',
     'UpdateFranchisePriceListEnd', 'UpdateFranchisePriceList']
-__metaclass__ = PoolMeta
 _ZERO = Decimal('0.0')
 
 
 class Franchise:
     __name__ = 'sale.franchise'
+    __metaclass__ = PoolMeta
 
     price_list = fields.Function(fields.Many2One('product.price_list',
             'Price List'),
@@ -59,6 +59,7 @@ class Franchise:
 
 class PriceList:
     __name__ = 'product.price_list'
+    __metaclass__ = PoolMeta
 
     franchise = fields.Many2One('sale.franchise', 'Franchise', readonly=True)
 
@@ -126,6 +127,8 @@ class PriceList:
 
 class PriceListLine:
     __name__ = 'product.price_list.line'
+    __metaclass__ = PoolMeta
+
     public_price_formula = fields.Char('Public Price Formula',
         help=('Python expression that will be evaluated with:\n'
             '- unit_price: the original unit_price'))
@@ -156,6 +159,7 @@ class PriceListLine:
 class FranchisePriceListFranchise(ModelSQL):
     'Franchise Price List - Franchise'
     __name__ = 'sale.franchise.price_list-sale.franchise'
+    __metaclass__ = PoolMeta
 
     price_list = fields.Many2One('sale.franchise.price_list',
         'Franchise Price List', required=True, select=True, ondelete='CASCADE')
@@ -165,6 +169,8 @@ class FranchisePriceListFranchise(ModelSQL):
 
 class Template:
     __name__ = 'product.template'
+    __metaclass__ = PoolMeta
+
     price_list_cost_price = fields.Numeric('Price List Cost Price',
         digits=(16, DIGITS), required=True)
 
@@ -187,6 +193,7 @@ class Template:
 class FranchisePriceList(ModelSQL, ModelView):
     'Franchise Price List'
     __name__ = 'sale.franchise.price_list'
+    __metaclass__ = PoolMeta
 
     franchises = fields.Many2Many('sale.franchise.price_list-sale.franchise',
         'price_list', 'franchise', 'Franchises')
