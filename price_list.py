@@ -78,7 +78,7 @@ class PriceList:
         for line in self.lines:
             if line.match(pattern):
                 with Transaction().set_context(
-                        self._get_context_price_list_line(party, product,
+                        self.get_context_formula(party, product,
                             unit_price, quantity, uom)):
                     return line.get_public_price()
         return unit_price
@@ -118,7 +118,7 @@ class PriceList:
         for line in lines:
             if line.match(pattern):
                 with Transaction().set_context(
-                        self._get_context_price_list_line(party, product,
+                        self.get_context_formula(party, product,
                             unit_price, quantity, uom)):
                     return (cost_price,
                         line.get_unit_price(), line.get_public_price())
@@ -135,12 +135,11 @@ class PriceListLine:
     franchise_price_list = fields.Many2One('sale.franchise.price_list',
         'Francise Price List', readonly=True, select=True)
 
-    def get_public_price(self):
+    def get_public_price(self, **context):
         '''
         Return public price (as Decimal)
         '''
-        context = Transaction().context.copy()
-        context['Decimal'] = Decimal
+        context.setdefault('functions', {})['Decimal'] = Decimal
         formula = (self.public_price_formula if self.public_price_formula else
             self.formula)
         return simple_eval(decistmt(formula), **context)
