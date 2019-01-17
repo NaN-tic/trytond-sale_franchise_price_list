@@ -14,7 +14,7 @@ def register():
         PriceListLine,
         UpdateFranchisePriceListStart,
         UpdateFranchisePriceListEnd,
-        Sale,
+         Sale,
         SetFranchisesStart,
         module='sale_franchise_price_list', type_='model')
     Pool.register(

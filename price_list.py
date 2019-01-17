@@ -16,6 +16,9 @@ from trytond.transaction import Transaction
 from trytond.wizard import Wizard, StateAction, StateTransition, StateView, \
     Button
 from trytond.modules.product_price_list.price_list import decistmt
+from trytond.i18n import gettext
+from trytond.exceptions import UserError
+
 DIGITS = config.getint('digits', 'unit_price_digits', default=4)
 
 __all__ = ['Franchise', 'PriceList', 'PriceListLine',
@@ -25,9 +28,8 @@ __all__ = ['Franchise', 'PriceList', 'PriceListLine',
 _ZERO = Decimal('0.0')
 
 
-class Franchise:
+class Franchise(metaclass=PoolMeta):
     __name__ = 'sale.franchise'
-    __metaclass__ = PoolMeta
 
     price_list = fields.Function(fields.Many2One('product.price_list',
             'Price List'),
@@ -57,7 +59,7 @@ class Franchise:
         return result
 
 
-class PriceList:
+class PriceList(metaclass=PoolMeta):
     __name__ = 'product.price_list'
     __metaclass__ = PoolMeta
 
@@ -125,7 +127,7 @@ class PriceList:
         return (cost_price, unit_price, unit_price)
 
 
-class PriceListLine:
+class PriceListLine(metaclass=PoolMeta):
     __name__ = 'product.price_list.line'
     __metaclass__ = PoolMeta
 
@@ -155,10 +157,9 @@ class PriceListLine:
         return price_list
 
 
-class FranchisePriceListFranchise(ModelSQL):
+class FranchisePriceListFranchise(ModelSQL, metaclass=PoolMeta):
     'Franchise Price List - Franchise'
     __name__ = 'sale.franchise.price_list-sale.franchise'
-    __metaclass__ = PoolMeta
 
     price_list = fields.Many2One('sale.franchise.price_list',
         'Franchise Price List', required=True, select=True, ondelete='CASCADE')
@@ -166,9 +167,8 @@ class FranchisePriceListFranchise(ModelSQL):
         select=True, ondelete='CASCADE')
 
 
-class Template:
+class Template(metaclass=PoolMeta):
     __name__ = 'product.template'
-    __metaclass__ = PoolMeta
 
     price_list_cost_price = fields.Numeric('Price List Cost Price',
         digits=(16, DIGITS), required=True)
@@ -189,10 +189,9 @@ class Template:
         return super(Template, cls).write(*args)
 
 
-class FranchisePriceList(ModelSQL, ModelView):
+class FranchisePriceList(ModelSQL, ModelView, metaclass=PoolMeta):
     'Franchise Price List'
     __name__ = 'sale.franchise.price_list'
-    __metaclass__ = PoolMeta
 
     franchises = fields.Many2Many('sale.franchise.price_list-sale.franchise',
         'price_list', 'franchise', 'Franchises')
@@ -233,11 +232,6 @@ class FranchisePriceList(ModelSQL, ModelView):
         cls._buttons.update({
                 'set_franchises': {}
                 })
-        cls._error_messages.update({
-                'related_price_lists': ('Can not modify line "%s" because it '
-                    'has related price list lines. Please duplicate it.')
-                })
-
     @classmethod
     def __register__(cls, module_name):
         pool = Pool()
@@ -306,7 +300,9 @@ class FranchisePriceList(ModelSQL, ModelView):
                 self.on_change_with_sale_price_with_vat())
 
     @fields.depends('sale_price_percent', 'sale_price_with_vat',
-        'public_percent', 'public_price', 'product')
+        'public_percent', 'public_price', 'product',
+        methods=['on_change_with_sale_price_with_vat',
+            'on_change_with_public_percent'])
     def on_change_sale_percent(self):
         sale_price_with_vat = self.on_change_with_sale_price_with_vat()
         if sale_price_with_vat != self.sale_price_with_vat:
@@ -334,7 +330,7 @@ class FranchisePriceList(ModelSQL, ModelView):
             ).quantize(Decimal(str(10 ** - digits)))
 
     @fields.depends('product', 'sale_price', 'sale_price_percent',
-        methods=['sale_price'])
+        methods=['on_change_with_sale_price'])
     def on_change_with_sale_price_with_vat(self, name=None):
         pool = Pool()
         Tax = pool.get('account.tax')
@@ -349,7 +345,7 @@ class FranchisePriceList(ModelSQL, ModelView):
         return price.quantize(Decimal(str(10 ** - digits)))
 
     @fields.depends('sale_price_with_vat', 'public_price',
-        methods=['sale_price_with_vat'])
+        methods=['on_change_with_sale_price_with_vat'])
     def on_change_with_public_percent(self, name=None):
         if not self.sale_price_with_vat or not self.public_price:
             return 0.0
@@ -463,8 +459,9 @@ class FranchisePriceList(ModelSQL, ModelView):
                 if values.get('franchises'):
                     for line in lines:
                         if line.price_list_lines:
-                            cls.raise_user_error('related_price_lists',
-                                line.rec_name)
+                            raise UserError(gettext(
+                                'sale_franchise_price_list.related_price_lists',
+                                line=line.rec_name))
         super(FranchisePriceList, cls).write(*args)
 
         to_create = []
