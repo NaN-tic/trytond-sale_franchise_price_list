@@ -8,7 +8,9 @@ import ConfigParser
 
 MODULE = 'sale_franchise_price_list'
 PREFIX = 'nantic'
-MODULE2PREFIX = {}
+MODULE2PREFIX = {
+    'sale_franchise_products': 'nantic',
+}
 
 
 def read(fname):
@@ -62,7 +64,7 @@ setup(name='%s_%s' % (PREFIX, MODULE),
         ],
     package_data={
         'trytond.modules.%s' % MODULE: (info.get('xml', [])
-            + ['tryton.cfg', 'locale/*.po', 'tests/*.rst']),
+            + ['tryton.cfg', 'locale/*.po', 'tests/*.rst', 'view/*.xml']),
         },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
