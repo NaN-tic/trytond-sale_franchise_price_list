@@ -448,6 +448,7 @@ class FranchisePriceList(ModelSQL, ModelView, metaclass=PoolMeta):
     def write(cls, *args):
         pool = Pool()
         Template = pool.get('product.template')
+        Product = pool.get('product.product')
 
         actions = iter(args)
         to_check = []
@@ -466,11 +467,14 @@ class FranchisePriceList(ModelSQL, ModelView, metaclass=PoolMeta):
 
         to_create = []
         template_to_write = []
+        product_to_write = []
         for line in cls.browse([x.id for x in to_check]):
             if not line.franchises:
                 template_to_write.extend(([line.product.template], {
-                            'cost_price': line.product_cost_price,
                             'list_price': line.sale_price,
+                            }))
+                product_to_write.extend(([line.product], {
+                            'cost_price': line.product_cost_price,
                             }))
                 continue
             if not cls.search([
@@ -485,6 +489,8 @@ class FranchisePriceList(ModelSQL, ModelView, metaclass=PoolMeta):
                         })
         if template_to_write:
             Template.write(*template_to_write)
+        if product_to_write:
+            Product.write(*product_to_write)
         if to_create:
             cls.create(to_create)
 
